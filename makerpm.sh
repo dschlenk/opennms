@@ -199,6 +199,8 @@ function main()
         run install -d -m 755 "$WORKDIR"/{BUILD,RPMS/{i386,i686,noarch},SOURCES,SPECS,SRPMS}
 
         echo "=== Copying Source to Source Directory ==="
+        run env
+        echo "run rsync -aqr --exclude=.git --exclude=.svn --exclude=target --delete --delete-excluded \"$TOPDIR/\" \"$WORKDIR/tmp/opennms-$VERSION-$RELEASE/\""
         run rsync -aqr --exclude=.git --exclude=.svn --exclude=target --delete --delete-excluded "$TOPDIR/" "$WORKDIR/tmp/opennms-$VERSION-$RELEASE/"
 
         echo "=== Creating a tar.gz archive of the Source in /usr/src/redhat/SOURCES ==="
