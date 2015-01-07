@@ -179,9 +179,9 @@
   <div>
     <h3 class="o-box">Node Resources</h3>
     <div class="boxWrapper">
-        <opennms:reportSelectionList id="choose-resource" dataObject="data"></opennms:reportSelectionList>
+        <opennms:reportSelectionList id="choose-resource" dataObject="data" targetUrl="${model.endUrl}"></opennms:reportSelectionList>
         <!-- for IE -->
-        <div name="opennms-reportSelectionList" id="choose-resource-ie" dataObject="data"></div>
+        <div name="opennms-reportSelectionList" id="choose-resource-ie" dataObject="data" targetUrl="${model.endUrl}"></div>
     </div>
   </div>
       <%--<h3 class="o-box">
