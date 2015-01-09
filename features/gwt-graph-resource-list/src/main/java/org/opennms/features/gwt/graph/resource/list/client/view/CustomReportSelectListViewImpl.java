@@ -48,9 +48,9 @@ import com.google.gwt.view.client.SingleSelectionModel;
 
 public class CustomReportSelectListViewImpl extends Composite implements CustomReportSelectListView<ResourceListItem>{
 
-    private static ReportSelectListViewImplUiBinder uiBinder = GWT.create(ReportSelectListViewImplUiBinder.class);
+    private static CustomReportSelectListViewImplUiBinder uiBinder = GWT.create(CustomReportSelectListViewImplUiBinder.class);
 
-    interface ReportSelectListViewImplUiBinder extends UiBinder<Widget, CustomReportSelectListViewImpl> { }
+    interface CustomReportSelectListViewImplUiBinder extends UiBinder<Widget, CustomReportSelectListViewImpl> { }
 
     @UiField
     LayoutPanel m_layoutPanel;
