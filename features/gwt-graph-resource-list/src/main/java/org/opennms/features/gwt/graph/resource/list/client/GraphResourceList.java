@@ -58,6 +58,8 @@ public class GraphResourceList implements EntryPoint {
                         createKscChooseResourceView(element);
                     }else if(element.getAttribute("name").equals("opennms-graphResourceList")) {
                         createGraphResourceView(element);
+                    }else if(element.getAttribute("name").equals("opennms-customGraphResourceList")) {
+                        createCustomGraphResourceView(element);
                     }else if(element.getAttribute("name").equals("opennms-nodeSnmpReportList")) {
                         createKscReportListView(element);
                     }else if(element.getAttribute("name").equals("opennms-kscCustomReportList")) {
@@ -82,6 +84,14 @@ public class GraphResourceList implements EntryPoint {
                 for(int i = 0; i < graphResourceListNodes.getLength(); i++) {
                     Element elem = graphResourceListNodes.getItem(i);
                     createGraphResourceView(elem);
+                }
+            }
+            
+            NodeList<Element> customGraphResourceListNodes = RootPanel.getBodyElement().getElementsByTagName("opennms:customGraphResourceList");
+            if(customGraphResourceListNodes.getLength() > 0) {
+                for(int i = 0; i < customGraphResourceListNodes.getLength(); i++) {
+                    Element elem = customGraphResourceListNodes.getItem(i);
+                    createCustomGraphResourceView(elem);
                 }
             }
             
@@ -133,6 +143,12 @@ public class GraphResourceList implements EntryPoint {
     private void createGraphResourceView(Element element) {
         ResourceListAppController resourceListView = new ResourceListAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl());
         resourceListView.go(RootPanel.get(element.getId()));
+    }
+    
+    
+    private void createCustomGraphResourceView(Element element) {
+        ResourceListAppController customResourceListView = new CustomGraphResourceListAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl());
+        customResourceListView.go(RootPanel.get(element.getId()));
     }
     
     

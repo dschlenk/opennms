@@ -151,7 +151,7 @@ public class DefaultResourceListPresenter implements Presenter, DefaultResourceL
         url.append("graph/chooseresource.htm");
         url.append("?reports=all");
         url.append("&parentResourceId=" + getView().getSelectedResource().getId());
-        
+
         Location.assign(url.toString());
     }
 

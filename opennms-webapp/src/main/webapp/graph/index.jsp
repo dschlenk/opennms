@@ -183,8 +183,8 @@
 			                                                                 		]};
 		
 	</script>
-	<opennms:graphResourceList id="resourceList2" dataObject="customResources"> </opennms:graphResourceList>
-	<div name="opennms-graphResourceList" id="resourceList2-ie" dataObject="customResources"></div>
+	<opennms:customGraphResourceList id="resourceList2" dataObject="customResources"> </opennms:customGraphResourceList>
+	<div name="opennms-customGraphResourceList" id="resourceList2-ie" dataObject="customResources"></div>
   </div>
 </div>
 

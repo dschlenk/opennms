@@ -26,38 +26,28 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.features.gwt.graph.resource.list.client;
+package org.opennms.features.gwt.graph.resource.list.client.presenter;
 
-import org.opennms.features.gwt.graph.resource.list.client.presenter.DefaultResourceListPresenter;
-import org.opennms.features.gwt.graph.resource.list.client.presenter.Presenter;
-import org.opennms.features.gwt.graph.resource.list.client.view.DefaultResourceListViewImpl;
+import org.opennms.features.gwt.graph.resource.list.client.view.DefaultResourceListView;
 import org.opennms.features.gwt.graph.resource.list.client.view.ResourceListItem;
-import org.opennms.features.gwt.graph.resource.list.client.view.SearchPopup;
 
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.Window.Location;
 
-public class ResourceListAppController implements Presenter {
-
-    private JsArray<ResourceListItem> m_resourceList;
-    private String m_baseUrl;
+public class CustomGraphResourceListPresenter extends DefaultResourceListPresenter{
     
-    public ResourceListAppController(JsArray<ResourceListItem> resourceListData, String baseUrl) {
-        m_resourceList = resourceListData;
-        m_baseUrl = baseUrl;
+    public CustomGraphResourceListPresenter(DefaultResourceListView<ResourceListItem> view, SearchPopupDisplay searchPopup, JsArray<ResourceListItem> dataList, String baseUrl) {
+        super(view, searchPopup, dataList, baseUrl);
     }
-
+    
     @Override
-    public void go(HasWidgets container) {
-        new DefaultResourceListPresenter(new DefaultResourceListViewImpl(), new SearchPopup(), m_resourceList, m_baseUrl).go(container);
-    }
-
-    public JsArray<ResourceListItem> getResourceList() {
-        return m_resourceList;
-    }
-
-    public String getBaseUrl() {
-        return m_baseUrl;
+    public void onResourceItemSelected() {
+        StringBuilder url = new StringBuilder(getBaseUrl());
+        url.append("graph/chooseresource.htm");
+        url.append("?reports=all");
+        url.append("&parentResourceId=" + getView().getSelectedResource().getId());
+        url.append("&endUrl=graph%2Fadhoc2.jsp");
+        Location.assign(url.toString());
     }
 
 }
