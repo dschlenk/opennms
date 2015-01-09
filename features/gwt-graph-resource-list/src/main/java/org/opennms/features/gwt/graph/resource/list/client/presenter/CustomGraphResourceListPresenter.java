@@ -44,10 +44,8 @@ public class CustomGraphResourceListPresenter extends DefaultResourceListPresent
     public void onResourceItemSelected() {
         StringBuilder url = new StringBuilder(getBaseUrl());
         url.append("graph/chooseresource.htm");
-        url.append("?reports=all");
-        url.append("&parentResourceId=" + getView().getSelectedResource().getId());
-        url.append("&endUrl=graph%2Fadhoc2.jsp");
+        url.append("?parentResourceId=").append(getView().getSelectedResource().getId());
+        url.append("&endUrl=graph/adhoc2.jsp");
         Location.assign(url.toString());
     }
-
 }
