@@ -39,6 +39,8 @@ import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.web.servlet.MissingParameterException;
 import org.opennms.web.svclayer.ChooseResourceService;
 import org.opennms.web.svclayer.support.ChooseResourceModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
@@ -55,14 +57,15 @@ public class ChooseResourceController extends AbstractController implements Init
     private ChooseResourceService m_chooseResourceService;
     private String m_defaultEndUrl;
     private NodeDao m_nodeDao;
-
+    private static Logger logger = LoggerFactory.getLogger("OpenNMS.WEB." + GraphResultsController.class);
+    
     /** {@inheritDoc} */
     @Override
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String[] requiredParameters = new String[] { "parentResourceId or", "parentResourceType and parentResource" };
 
         String endUrl = WebSecurityUtils.sanitizeString(request.getParameter("endUrl"));
-
+        logger.debug("endUrl: " + endUrl);
         String resourceId = WebSecurityUtils.sanitizeString(request.getParameter("parentResourceId"));
         if (resourceId == null) {
             String resourceType = WebSecurityUtils.sanitizeString(request.getParameter("parentResourceType"));

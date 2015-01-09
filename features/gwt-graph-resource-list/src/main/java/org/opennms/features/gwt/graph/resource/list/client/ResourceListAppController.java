@@ -52,12 +52,4 @@ public class ResourceListAppController implements Presenter {
         new DefaultResourceListPresenter(new DefaultResourceListViewImpl(), new SearchPopup(), m_resourceList, m_baseUrl).go(container);
     }
 
-    public JsArray<ResourceListItem> getResourceList() {
-        return m_resourceList;
-    }
-
-    public String getBaseUrl() {
-        return m_baseUrl;
-    }
-
 }
