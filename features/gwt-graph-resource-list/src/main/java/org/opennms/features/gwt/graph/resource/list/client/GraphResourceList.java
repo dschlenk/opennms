@@ -34,6 +34,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Navigator;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -136,7 +137,9 @@ public class GraphResourceList implements EntryPoint {
     }
     
     private void createCustomReportSelectView(Element element) {
-        CustomReportSelectListAppController customReportSelectListAppController = new CustomReportSelectListAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl(), com.google.gwt.user.client.Window.Location.getParameter("endUrl"));
+        String endUrl = com.google.gwt.user.client.Window.Location.getParameter("endUrl");
+        Window.alert("endUrl: " + endUrl);
+        CustomReportSelectListAppController customReportSelectListAppController = new CustomReportSelectListAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl(), endUrl);
         customReportSelectListAppController.go(RootPanel.get(element.getId()));
     }
     
