@@ -65,7 +65,11 @@ public class GraphResourceList implements EntryPoint {
                     }else if(element.getAttribute("name").equals("opennms-kscCustomReportList")) {
                         createKscCustomReportView(element);
                     }else if(element.getAttribute("name").equals("opennms-reportSelectionList")) {
-                        createReportSelectView(element);
+                        if(com.google.gwt.user.client.Window.Location.getParameter("endUrl") != null){
+                            createCustomReportSelectView(element);
+                        }else{
+                            createReportSelectView(element);
+                        }
                     }
                 }
             }
@@ -115,7 +119,11 @@ public class GraphResourceList implements EntryPoint {
             if(reportSelectListNodes.getLength() > 0) {
                 for(int i = 0; i < reportSelectListNodes.getLength(); i++) {
                     Element elem = reportSelectListNodes.getItem(i);
-                    createReportSelectView(elem);
+                    if(com.google.gwt.user.client.Window.Location.getParameter("endUrl") != null){
+                        createCustomReportSelectView(elem);
+                    }else{
+                        createReportSelectView(elem);
+                    }
                 }
             }
         }
@@ -127,6 +135,10 @@ public class GraphResourceList implements EntryPoint {
         reportSelectListAppController.go(RootPanel.get(element.getId()));
     }
     
+    private void createCustomReportSelectView(Element element) {
+        CustomReportSelectListAppController customReportSelectListAppController = new CustomReportSelectListAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl(), com.google.gwt.user.client.Window.Location.getParameter("endUrl"));
+        customReportSelectListAppController.go(RootPanel.get(element.getId()));
+    }
     
     private void createKscCustomReportView(Element element) {
         KscCustomReportAppController kscCustomReportList = new KscCustomReportAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl(), getReadOnlyAttribue(element));

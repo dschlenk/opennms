@@ -51,6 +51,14 @@ public class ReportSelectListAppController implements Presenter {
         m_baseUrl = baseUrl;
     }
 
+    public List<ResourceListItem> getResourceList() {
+        return m_resourceList;
+    }
+
+    public String getBaseUrl() {
+        return m_baseUrl;
+    }
+
     @Override
     public void go(HasWidgets container) {
         new ReportSelectListPresenter(new ReportSelectListViewImpl(m_resourceList), new SearchPopup(), m_baseUrl).go(container);
