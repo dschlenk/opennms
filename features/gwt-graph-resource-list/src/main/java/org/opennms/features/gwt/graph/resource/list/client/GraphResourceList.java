@@ -69,6 +69,7 @@ public class GraphResourceList implements EntryPoint {
                         if(com.google.gwt.user.client.Window.Location.getParameter("endUrl") != null){
                             createCustomReportSelectView(element);
                         }else{
+                            Window.alert("not custom because " + com.google.gwt.user.client.Window.Location.getParameter("endUrl"));
                             createReportSelectView(element);
                         }
                     }
@@ -123,6 +124,7 @@ public class GraphResourceList implements EntryPoint {
                     if(com.google.gwt.user.client.Window.Location.getParameter("endUrl") != null){
                         createCustomReportSelectView(elem);
                     }else{
+                        Window.alert("not custom because " + com.google.gwt.user.client.Window.Location.getParameter("endUrl"));
                         createReportSelectView(elem);
                     }
                 }
