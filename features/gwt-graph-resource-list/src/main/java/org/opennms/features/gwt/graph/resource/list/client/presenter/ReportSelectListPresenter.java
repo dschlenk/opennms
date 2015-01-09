@@ -56,10 +56,6 @@ public class ReportSelectListPresenter implements Presenter, ReportSelectListVie
         m_baseUrl = baseUrl;
     }
         
-    public String getBaseUrl() {
-        return m_baseUrl;
-    }
-
     private void initializeSearchPopup(SearchPopupDisplay searchPopupView) {
         m_searchPopup = searchPopupView;
         m_searchPopup.setHeightOffset(425);

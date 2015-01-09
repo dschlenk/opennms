@@ -138,7 +138,6 @@ public class GraphResourceList implements EntryPoint {
     
     private void createCustomReportSelectView(Element element) {
         String endUrl = com.google.gwt.user.client.Window.Location.getParameter("endUrl");
-        Window.alert("endUrl: " + endUrl);
         CustomReportSelectListAppController customReportSelectListAppController = new CustomReportSelectListAppController(getResourceListData(getDataObjectAttribute(element)), getBaseUrl(), endUrl);
         customReportSelectListAppController.go(RootPanel.get(element.getId()));
     }
