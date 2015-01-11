@@ -48,7 +48,6 @@ public class GraphResourceList implements EntryPoint {
    */
     @Override
     public void onModuleLoad() {
-        Window.alert("hola!");
         if(Navigator.getUserAgent().contains("MSIE")) {
             
             NodeList<Element> divs = RootPanel.getBodyElement().getElementsByTagName("div");
@@ -69,7 +68,6 @@ public class GraphResourceList implements EntryPoint {
                         if(com.google.gwt.user.client.Window.Location.getParameter("endUrl") != null){
                             createCustomReportSelectView(element);
                         }else{
-                            Window.alert("not custom because " + com.google.gwt.user.client.Window.Location.getParameter("endUrl"));
                             createReportSelectView(element);
                         }
                     }
@@ -77,7 +75,6 @@ public class GraphResourceList implements EntryPoint {
             }
             
         }else {
-            Window.alert("not IE!");
             NodeList<Element> kscChooseResourceList = RootPanel.getBodyElement().getElementsByTagName("opennms:kscChooseResourceList");
             if(kscChooseResourceList.getLength() > 0) {
                 for(int i = 0; i < kscChooseResourceList.getLength(); i++) {
@@ -120,13 +117,11 @@ public class GraphResourceList implements EntryPoint {
             
             NodeList<Element> reportSelectListNodes = RootPanel.getBodyElement().getElementsByTagName("opennms:reportSelectionList");
             if(reportSelectListNodes.getLength() > 0) {
-                Window.alert("reportSelectionList!");
                 for(int i = 0; i < reportSelectListNodes.getLength(); i++) {
                     Element elem = reportSelectListNodes.getItem(i);
                     if(com.google.gwt.user.client.Window.Location.getParameter("endUrl") != null){
                         createCustomReportSelectView(elem);
                     }else{
-                        Window.alert("not custom because " + com.google.gwt.user.client.Window.Location.getParameter("endUrl"));
                         createReportSelectView(elem);
                     }
                 }
