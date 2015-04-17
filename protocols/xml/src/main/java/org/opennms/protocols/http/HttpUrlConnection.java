@@ -195,6 +195,7 @@ public class HttpUrlConnection extends URLConnection {
                 UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(uname, pwd);
                 request.addHeader(BasicScheme.authenticate(credentials, "UTF-8", false));
             }
+
             // Get Response
             HttpResponse response = m_client.execute(request);
             return response.getEntity().getContent();
