@@ -201,6 +201,7 @@ public class PollableServiceConfig implements PollConfig, ScheduleInterval {
      */
     @Override
     public synchronized long getInterval() {
+        LOG.debug("getInterval()", new Exception());
         if (m_service.isDeleted()) {
             LOG.debug("getInterval(): {} is deleted", m_service);
             return -1;

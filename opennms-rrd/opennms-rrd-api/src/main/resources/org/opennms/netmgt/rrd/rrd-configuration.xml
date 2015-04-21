@@ -10,7 +10,6 @@
 				<prop key="org.opennms.rrd.fileExtension" />
 
 				<!-- Queuing properties -->
-				<prop key="org.opennms.rrd.queuing.queueSize">50000</prop>
 				<prop key="org.opennms.rrd.queuing.writethreads">2</prop>
 				<prop key="org.opennms.rrd.queuing.queuecreates">false</prop>
 				<prop key="org.opennms.rrd.queuing.prioritizeSignificantUpdates">false</prop>
@@ -73,8 +72,6 @@
 
 	<!-- This is the default RrdStrategy -->
 	<bean id="queuingRrdStrategy" class="org.opennms.netmgt.rrd.QueuingRrdStrategy" lazy-init="true">
-		<!-- This strategy doesn't support org.opennms.rrd.queuing.queueSize yet -->
-		<!-- <property name="queueSize" value="${org.opennms.rrd.queuing.queueSize}" /> -->
 		<property name="writeThreads" value="${org.opennms.rrd.queuing.writethreads}" />
 		<property name="queueCreates" value="${org.opennms.rrd.queuing.queuecreates}" />
 		<property name="prioritizeSignificantUpdates" value="${org.opennms.rrd.queuing.prioritizeSignificantUpdates}" />
@@ -98,7 +95,6 @@
 				<ref local="basicRrdStrategy" />
 				<bean class="org.opennms.netmgt.rrd.tcp.QueuingTcpRrdStrategy" lazy-init="true">
 					<constructor-arg ref="tcpRrdStrategy" />
-					<constructor-arg value="${org.opennms.rrd.queuing.queueSize}" />
 				</bean>
 			</list>
 		</property>
@@ -114,7 +110,6 @@
 				<ref local="queuingRrdStrategy" />
 				<bean class="org.opennms.netmgt.rrd.tcp.QueuingTcpRrdStrategy" lazy-init="true">
 					<constructor-arg ref="tcpRrdStrategy" />
-					<constructor-arg value="${org.opennms.rrd.queuing.queueSize}" />
 				</bean>
 			</list>
 		</property>

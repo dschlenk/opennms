@@ -296,9 +296,4 @@ public class MockNodeDao implements NodeDao {
         return null;
     }
 
-    @Override
-    public Map<Integer, String> getAllLabelsById() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

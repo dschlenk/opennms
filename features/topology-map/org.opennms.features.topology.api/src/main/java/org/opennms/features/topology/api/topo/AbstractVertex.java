@@ -75,7 +75,7 @@ public class AbstractVertex extends DefaultVertexRef implements Vertex {
 	}
 
 	@Override
-	public String getIconKey() {
+	public final String getIconKey() {
 		return m_iconKey;
 	}
 
@@ -148,7 +148,7 @@ public class AbstractVertex extends DefaultVertexRef implements Vertex {
 	}
 
 	@Override
-	public String getIpAddress() {
+	public final String getIpAddress() {
 		return m_ipAddr;
 	}
 

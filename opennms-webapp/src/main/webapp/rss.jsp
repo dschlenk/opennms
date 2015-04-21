@@ -27,11 +27,16 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
---%><%@page
+--%>
+
+<%@page
 	language="java"
-	contentType="application/rss+xml"
+	contentType="text/plain"
 	session="true"
 	import="org.opennms.web.rss.*"
+%><%!
+	private Feed feed;
+	private String output = "";
 %><%
 	String feedName = request.getParameter("feed");
 	String feedType = request.getParameter("type");
@@ -43,19 +48,15 @@
         className = "org.opennms.web.rss." + Character.toUpperCase(className.charAt(0)) + className.substring(1) + "Feed";
     	
         try {
-            Feed feed = (Feed)Class.forName(className).newInstance();
+            feed = (Feed)Class.forName(className).newInstance();
             String urlBase = request.getRequestURL().toString();
             urlBase = urlBase.substring(0, urlBase.lastIndexOf("/") + 1);
     		feed.setUrlBase(urlBase);
     		feed.setFeedType(feedType);
     		feed.setRequest(request);
-    		feed.setServletContext(getServletContext());
-    		String feedString = feed.render();
-    		if (feedString != null) {
-    			out.println(feedString);
-    		}
+    		out.println(feed.render());
         } catch (NoClassDefFoundError e) {
-            throw new Exception("Unable to locate class for " + className);
+            throw new Exception("unable to locate class for " + className);
         }
 	}
 %>

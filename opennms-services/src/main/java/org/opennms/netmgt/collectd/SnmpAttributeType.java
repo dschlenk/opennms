@@ -131,10 +131,7 @@ public abstract class SnmpAttributeType extends AbstractCollectionAttributeType 
         if (StringAttributeType.supportsType(mibObj.getType())) {
             return new StringAttributeType(resourceType, collectionName, mibObj, groupType);
         }
-        if (HexStringAttributeType.supportsType(mibObj.getType())) {
-            return new HexStringAttributeType(resourceType, collectionName, mibObj, groupType);
-        }
-
+        
         throw new IllegalArgumentException("No support exists for AttributeType '" + mibObj.getType() + "' for MIB object: "+ mibObj);
     }
     

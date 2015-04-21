@@ -30,13 +30,14 @@ package org.opennms.web.rss;
 
 import java.io.StringWriter;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.io.SyndFeedOutput;
 
 /**
@@ -46,7 +47,7 @@ import com.sun.syndication.io.SyndFeedOutput;
  * @version $Id: $
  * @since 1.8.1
  */
-public abstract class AbstractFeed implements Feed {
+public class AbstractFeed implements Feed {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractFeed.class);
 
@@ -54,8 +55,6 @@ public abstract class AbstractFeed implements Feed {
     protected String m_feedType = "rss_2.0";
     protected String m_urlBase = "";
     protected ServletRequest m_servletRequest;
-
-    private ServletContext m_servletContext;
     
     /**
      * <p>Constructor for AbstractFeed.</p>
@@ -78,13 +77,13 @@ public abstract class AbstractFeed implements Feed {
      * @return a {@link java.lang.String} object.
      */
     @Override
-    public final String getUrlBase() {
+    public String getUrlBase() {
         return m_urlBase;
     }
     
     /** {@inheritDoc} */
     @Override
-    public final void setUrlBase(String urlBase) {
+    public void setUrlBase(String urlBase) {
         m_urlBase = urlBase;
     }
     
@@ -94,13 +93,13 @@ public abstract class AbstractFeed implements Feed {
      * @return a {@link java.lang.String} object.
      */
     @Override
-    public final String getFeedType() {
+    public String getFeedType() {
         return m_feedType;
     }
     
     /** {@inheritDoc} */
     @Override
-    public final void setFeedType(String feedType) {
+    public void setFeedType(String feedType) {
         m_feedType = feedType;
     }
     
@@ -110,13 +109,13 @@ public abstract class AbstractFeed implements Feed {
      * @return a int.
      */
     @Override
-    public final int getMaxEntries() {
+    public int getMaxEntries() {
         return m_maxEntries;
     }
     
     /** {@inheritDoc} */
     @Override
-    public final void setMaxEntries(int maxEntries) {
+    public void setMaxEntries(int maxEntries) {
         m_maxEntries = maxEntries;
     }
     
@@ -126,26 +125,14 @@ public abstract class AbstractFeed implements Feed {
      * @return a {@link javax.servlet.ServletRequest} object.
      */
     @Override
-    public final ServletRequest getRequest() {
+    public ServletRequest getRequest() {
         return m_servletRequest;
     }
     
     /** {@inheritDoc} */
     @Override
-    public final void setRequest(ServletRequest request) {
+    public void setRequest(ServletRequest request) {
         m_servletRequest = request;
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public final ServletContext getServletContext() {
-        return m_servletContext;
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public final void setServletContext(ServletContext context) {
-        m_servletContext = context;
     }
     
     /**
@@ -153,7 +140,9 @@ public abstract class AbstractFeed implements Feed {
      *
      * @return a {@link com.sun.syndication.feed.synd.SyndFeed} object.
      */
-    public abstract SyndFeed getFeed();
+    public SyndFeed getFeed() {
+        return new SyndFeedImpl();
+    }
 
     /**
      * <p>render</p>
@@ -161,10 +150,9 @@ public abstract class AbstractFeed implements Feed {
      * @return a {@link java.lang.String} object.
      */
     @Override
-    public final String render() {
+    public String render() {
         SyndFeed feed = this.getFeed();
         feed.setFeedType(this.getFeedType());
-        feed.setAuthor("OpenNMS");
         
         SyndFeedOutput output = new SyndFeedOutput();
         try {

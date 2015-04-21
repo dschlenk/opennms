@@ -28,7 +28,6 @@
 
 package org.opennms.web.rss;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 
 /**
@@ -45,61 +44,58 @@ public interface Feed {
      *
      * @return a {@link java.lang.String} object.
      */
-    String getUrlBase();
+    public String getUrlBase();
     /**
      * <p>setUrlBase</p>
      *
      * @param base a {@link java.lang.String} object.
      */
-    void setUrlBase(String base);
+    public void setUrlBase(String base);
     
     /**
      * <p>getFeedType</p>
      *
      * @return a {@link java.lang.String} object.
      */
-    String getFeedType();
+    public String getFeedType();
     /**
      * <p>setFeedType</p>
      *
      * @param type a {@link java.lang.String} object.
      */
-    void setFeedType(String type);
+    public void setFeedType(String type);
     
     /**
      * <p>getMaxEntries</p>
      *
      * @return a int.
      */
-    int getMaxEntries();
+    public int getMaxEntries();
     /**
      * <p>setMaxEntries</p>
      *
      * @param maxEntries a int.
      */
-    void setMaxEntries(int maxEntries);
+    public void setMaxEntries(int maxEntries);
 
     /**
      * <p>getRequest</p>
      *
      * @return a {@link javax.servlet.ServletRequest} object.
      */
-    ServletRequest getRequest();
+    public ServletRequest getRequest();
     /**
      * <p>setRequest</p>
      *
      * @param request a {@link javax.servlet.ServletRequest} object.
      */
-    void setRequest(ServletRequest request);
-    
-    ServletContext getServletContext();
-    
-    void setServletContext(ServletContext context);
+    public void setRequest(ServletRequest request);
     
     /**
      * <p>render</p>
      *
      * @return a {@link java.lang.String} object.
      */
-    String render();
+    public String render();
+    
 }

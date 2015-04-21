@@ -32,7 +32,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-
 import org.opennms.features.topology.api.support.VertexHopGraphProvider;
 import org.opennms.features.topology.api.topo.*;
 import org.opennms.netmgt.dao.api.IpInterfaceDao;
@@ -40,27 +39,20 @@ import org.opennms.netmgt.dao.api.NodeDao;
 import org.opennms.netmgt.dao.api.SnmpInterfaceDao;
 import org.opennms.netmgt.dao.api.TopologyDao;
 import org.opennms.netmgt.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public abstract class AbstractLinkdTopologyProvider extends AbstractTopologyProvider implements GraphProvider,  SearchProvider {
-
-    private static Logger LOG = LoggerFactory.getLogger(AbstractLinkdTopologyProvider.class);
 
     public static final String TOPOLOGY_NAMESPACE_LINKD = "nodes";
     protected static final String HTML_TOOLTIP_TAG_OPEN = "<p>";
@@ -295,13 +287,13 @@ public abstract class AbstractLinkdTopologyProvider extends AbstractTopologyProv
         return m_aclEnabled;
     }
 
-    protected Map<Integer, String> getAllNodesNoACL() {
+    protected List<OnmsNode> getAllNodesNoACL() {
         if(getFilterManager().isEnabled()){
             String[] userGroups = getFilterManager().getAuthorizationGroups();
-            Map<Integer, String> nodeLabelsById = null;
+            List<OnmsNode> nodeList = null;
             try{
                 getFilterManager().disableAuthorizationFilter();
-                nodeLabelsById = getNodeDao().getAllLabelsById();
+                nodeList = getNodeDao().findAll();
 
             } finally {
                 // Make sure that we re-enable the authorization filter
@@ -309,10 +301,12 @@ public abstract class AbstractLinkdTopologyProvider extends AbstractTopologyProv
                     getFilterManager().enableAuthorizationFilter(userGroups);
                 }
             }
-            return nodeLabelsById != null ? nodeLabelsById : new HashMap<Integer, String>();
+            return nodeList != null ? nodeList : Collections.<OnmsNode>emptyList();
         } else {
-            return getNodeDao().getAllLabelsById();
+            return getNodeDao().findAll();
         }
+
+
     }
 
     public IpInterfaceDao getIpInterfaceDao() {
@@ -448,18 +442,6 @@ public abstract class AbstractLinkdTopologyProvider extends AbstractTopologyProv
         }
 
         return criterion;
-    }
-
-    protected void addNodesWithoutLinks() {
-        Map<Integer, String> nodeLabelsById = getAllNodesNoACL();
-        for (Entry<Integer, String> nodeIdAndLabel: nodeLabelsById.entrySet()) {
-            Integer nodeId = nodeIdAndLabel.getKey();
-            String nodeLabel = nodeIdAndLabel.getValue();
-            if (getVertex(getVertexNamespace(), nodeId.toString()) == null) {
-                LOG.debug("Adding link-less node: " + nodeLabel);
-                addVertices(new DeferedNodeLeafVertex(TOPOLOGY_NAMESPACE_LINKD, nodeId, nodeLabel, this));
-            }
-        }
     }
 
     private interface LinkState {

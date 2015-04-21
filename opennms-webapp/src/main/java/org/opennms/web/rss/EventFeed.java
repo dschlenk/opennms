@@ -30,7 +30,6 @@ package org.opennms.web.rss;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 
@@ -46,8 +45,6 @@ import org.opennms.web.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -71,15 +68,14 @@ public class EventFeed extends AbstractFeed {
      *
      * @return a {@link com.sun.syndication.feed.synd.SyndFeed} object.
      */
-    @Override
-    public SyndFeed getFeed() {
+    public SyndFeed getFeed(ServletContext servletContext) {
         SyndFeed feed = new SyndFeedImpl();
 
         feed.setTitle("Events");
         feed.setDescription("OpenNMS Events");
         feed.setLink(getUrlBase() + "event/list.htm");
 
-        List<SyndEntry> entries = new ArrayList<SyndEntry>();
+        ArrayList<SyndEntry> entries = new ArrayList<SyndEntry>();
 
         try {
             Event[] events;
@@ -87,7 +83,7 @@ public class EventFeed extends AbstractFeed {
             ArrayList<Filter> filters = new ArrayList<Filter>();
             if (this.getRequest().getParameter("node") != null) {
                 Integer nodeId = WebSecurityUtils.safeParseInt(this.getRequest().getParameter("node"));
-                filters.add(new NodeFilter(nodeId, getServletContext()));
+                filters.add(new NodeFilter(nodeId, servletContext));
             }
             if (this.getRequest().getParameter("severity") != null) {
                 String parameter = this.getRequest().getParameter("severity");
@@ -104,7 +100,7 @@ public class EventFeed extends AbstractFeed {
                 }
             }
             
-            events = EventFactory.getEvents(SortStyle.TIME, AcknowledgeType.BOTH, filters.toArray(new Filter[] {}), this.getMaxEntries(), 0);
+            events = EventFactory.getEvents(SortStyle.TIME, AcknowledgeType.BOTH, filters.toArray(new Filter[] {}), this.getMaxEntries(), -1);
 
             SyndEntry entry;
             
@@ -112,19 +108,13 @@ public class EventFeed extends AbstractFeed {
                 entry = new SyndEntryImpl();
                 entry.setPublishedDate(event.getTime());
                 if (event.getAcknowledgeTime() != null) {
-                    entry.setTitle(sanitizeTitle(event.getLogMessage()) + " (Acknowledged by " + event.getAcknowledgeUser() + ")");
+                    entry.setTitle(sanitizeTitle(event.getLogMessage()) + " (acknowledged by " + event.getAcknowledgeUser() + ")");
                     entry.setUpdatedDate(event.getAcknowledgeTime());
                 } else {
                     entry.setTitle(sanitizeTitle(event.getLogMessage()));
                     entry.setUpdatedDate(event.getTime());
                 }
                 entry.setLink(getUrlBase() + "event/detail.jsp?id=" + event.getId());
-                entry.setAuthor("OpenNMS");
-                
-                SyndContent content = new SyndContentImpl();
-                content.setType("text/html");
-                content.setValue(event.getDescription());
-                entry.setDescription(content);
                 
                 entries.add(entry);
             }
