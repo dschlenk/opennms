@@ -162,7 +162,7 @@ public class BSFNotificationStrategy implements NotificationStrategy {
     }
 
     private static void declareBeans(BSFNotificationStrategy obj) throws BSFException {
-        NodeDao nodeDao = Notifd.getInstance().getNodeDao();
+        NodeDao nodeDao = BeanUtils.getFactory("notifdContext", NodeDao.class);
         Integer nodeId;
         try {
             nodeId = Integer.valueOf(obj.m_notifParams.get(NotificationManager.PARAM_NODE));
