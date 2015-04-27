@@ -43,6 +43,7 @@ import org.apache.bsf.BSFManager;
 import org.apache.bsf.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.opennms.core.spring.BeanUtils;
 import org.opennms.netmgt.config.NotificationManager;
 import org.opennms.netmgt.dao.api.NodeDao;
@@ -162,7 +163,8 @@ public class BSFNotificationStrategy implements NotificationStrategy {
     }
 
     private static void declareBeans(BSFNotificationStrategy obj) throws BSFException {
-        NodeDao nodeDao = BeanUtils.getFactory("notifdContext", NodeDao.class);
+        BeanFactoryReference bf = BeanUtils.getBeanFactory("daoContext");
+        NodeDao nodeDao = BeanUtils.getBean(bf, "nodeDao", NodeDao.class);
         Integer nodeId;
         try {
             nodeId = Integer.valueOf(obj.m_notifParams.get(NotificationManager.PARAM_NODE));
