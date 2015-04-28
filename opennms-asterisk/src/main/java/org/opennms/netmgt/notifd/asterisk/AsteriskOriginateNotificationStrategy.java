@@ -107,8 +107,7 @@ public class AsteriskOriginateNotificationStrategy implements NotificationStrate
                 LOG.debug("Found: PARAM_NODE => {}", argValue);
                 ao.setChannelVariable(BaseOnmsAgiScript.VAR_OPENNMS_NODEID, argValue);
                 try {
-                    BeanFactoryReference bf = BeanUtils.getBeanFactory("daoContext");
-                    final NodeDao nodeDao = BeanUtils.getBean(bf, "nodeDao", NodeDao.class);
+                    final NodeDao nodeDao = BeanUtils.getBean("notifdContext", "nodeDao", NodeDao.class);
                     ao.setChannelVariable(BaseOnmsAgiScript.VAR_OPENNMS_NODELABEL, nodeDao.get(argValue).getLabel());
                 } catch (final Throwable t) {
                     ao.setChannelVariable(BaseOnmsAgiScript.VAR_OPENNMS_NODELABEL, null);
