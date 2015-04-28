@@ -40,6 +40,7 @@ import org.opennms.netmgt.model.notifd.Argument;
 import org.opennms.netmgt.model.notifd.NotificationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.access.BeanFactoryReference;
 
 /**
  * <p>AsteriskOriginateNotificationStrategy class.</p>
@@ -106,7 +107,8 @@ public class AsteriskOriginateNotificationStrategy implements NotificationStrate
                 LOG.debug("Found: PARAM_NODE => {}", argValue);
                 ao.setChannelVariable(BaseOnmsAgiScript.VAR_OPENNMS_NODEID, argValue);
                 try {
-                    final NodeDao nodeDao = BeanUtils.getFactory("notifdContext", NodeDao.class);
+                    BeanFactoryReference bf = BeanUtils.getBeanFactory("daoContext");
+                    final NodeDao nodeDao = BeanUtils.getBean(bf, "nodeDao", NodeDao.class);
                     ao.setChannelVariable(BaseOnmsAgiScript.VAR_OPENNMS_NODELABEL, nodeDao.get(argValue).getLabel());
                 } catch (final Throwable t) {
                     ao.setChannelVariable(BaseOnmsAgiScript.VAR_OPENNMS_NODELABEL, null);
