@@ -257,6 +257,8 @@ public class Jsr223Monitor extends AbstractServiceMonitor {
                     engine.eval(Files.newBufferedReader(file,
                                                         StandardCharsets.UTF_8),
                                 bindings);
+                    // redefine start time so we don't count the initial script compilation time etc
+                    startTime = System.currentTimeMillis();
                     if (!"".equals(args)) {
                         ((Invocable) engine).invokeFunction(methodName,
                                                             (Object[]) args);
@@ -279,6 +281,8 @@ public class Jsr223Monitor extends AbstractServiceMonitor {
                                                                                    StandardCharsets.UTF_8));
                         scriptCache.put(si, cs);
                     }
+                    // redefine start time so we don't count computing the MD5 sum or reading in the file etc
+                    startTime = System.currentTimeMillis();
                     cs.eval(bindings);
                     // TODO: clean out the ScriptContext
                 } else {
