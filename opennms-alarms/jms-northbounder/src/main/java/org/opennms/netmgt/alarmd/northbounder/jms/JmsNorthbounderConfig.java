@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * Configuration for the JMS NBI
- * 
+ *
  * @author <a mailto:david@opennms.org>David Hustace</a>
  * @author <a mailto:dschlenk@converge-one.com>David Schlenk</a>
  */
@@ -50,16 +50,16 @@ public class JmsNorthbounderConfig {
 
     @XmlElement(name = "enabled", required = false, defaultValue = "false")
     private Boolean m_enabled;
-    
+
     @XmlElement(name="nagles-delay", required=false, defaultValue="1000")
     private Integer m_naglesDelay = 1000;
-    
+
     @XmlElement(name="batch-size", required=false, defaultValue="100")
     private Integer m_batchSize = 100;
-    
+
     @XmlElement(name="queue-size", required=false, defaultValue="300000")
     private Integer m_queueSize = 300000;
-    
+
     @XmlElement(name = "message-format", required = false, defaultValue = "ALARM ID:${alarmId} NODE:${nodeLabel} ${logMsg}")
     private String m_messageFormat = "ALARM ID:${alarmId} NODE:${nodeLabel} ${logMsg}";
 
@@ -126,7 +126,7 @@ public class JmsNorthbounderConfig {
     }
 
     /**
-     * 
+     *
      * @param destinationName the name to match
      * @return destination in destinations list who's toString equals destinationName.
      */

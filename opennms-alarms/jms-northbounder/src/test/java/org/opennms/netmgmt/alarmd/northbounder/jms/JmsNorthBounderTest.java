@@ -64,17 +64,17 @@ import org.springframework.test.context.ContextConfiguration;
 
 /**
  * Tests the JMS North Bound Interface
- * 
+ *
  * @author <a href="mailto:dschlenk@converge-one.com">David Schlenk</a>
  */
 @RunWith(OpenNMSJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/test-context.xml")
 public class JmsNorthBounderTest {
     private JmsTemplate m_template;
-    
+
     @Autowired
     private ConnectionFactory m_jmsNorthbounderConnectionFactory;
-    
+
     @Before
     public void startBroker() throws InterruptedException {
         MockLogAppender.setupLogging();
@@ -91,7 +91,7 @@ public class JmsNorthBounderTest {
     /**
      * This tests forwarding of 7 alarms, one for each OpenNMS severity to
      * verify the LOG_LEVEL agrees with the Severity based on our algorithm.
-     * 
+     *
      * @throws Exception
      */
     @Test

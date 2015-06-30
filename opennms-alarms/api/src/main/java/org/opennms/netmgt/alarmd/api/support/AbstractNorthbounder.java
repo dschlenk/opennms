@@ -63,7 +63,7 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
     private final String m_name;
     private final AlarmQueue<NorthboundAlarm> m_queue;
     protected NodeDao m_nodeDao;
-    
+
     private volatile boolean m_stopped = true;
 
     private long m_retryInterval = 1000;

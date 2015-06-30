@@ -10,7 +10,7 @@
     <send-as-object-message>false</send-as-object-message>
     <first-occurence-only>true</first-occurence-only>
   </destination>
-  <!-- More than one destination can be specified 
+  <!-- More than one destination can be specified
   <destination>
     <jms-destination>AllAlarmQueue</jms-destination>
     <send-as-object-message>false</send-as-object-message>
