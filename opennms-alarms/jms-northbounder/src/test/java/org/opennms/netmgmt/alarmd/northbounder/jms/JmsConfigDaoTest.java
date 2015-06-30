@@ -40,9 +40,9 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
 public class JmsConfigDaoTest {
-	
+
 	String xmlAsXmlFirstOnlySomeUeis = "" +
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
 			"<jms-northbounder-config>" +
 			"  <enabled>true</enabled>" +
 			"  <message-format>ALARM ID:${alarmId} NODE:${nodeLabel}</message-format>" +
@@ -57,26 +57,26 @@ public class JmsConfigDaoTest {
 			"	<uei>uei.opennms.org/nodes/nodeUp</uei>\n" +
 			"</jms-northbounder-config>\n" +
 			"";
-	
+
 	@Test
         public void testAsXmlQueueFirstAlarmSomeUeis() throws InterruptedException {
-                
+
                 Resource resource = new ByteArrayResource(xmlAsXmlFirstOnlySomeUeis.getBytes());
-                                
+
                 JmsNorthbounderConfigDao dao = new JmsNorthbounderConfigDao();
                 dao.setConfigResource(resource);
                 dao.afterPropertiesSet();
-                
+
                 JmsNorthbounderConfig config = dao.getConfig();
-                
+
                 assertNotNull(config);
-                
+
                 assertEquals(true, config.isEnabled());
                 assertEquals(new Integer("1000"), config.getNaglesDelay());
                 assertEquals(new Integer(100), config.getBatchSize());
                 assertEquals(new Integer(300000), config.getQueueSize());
                 assertEquals("ALARM ID:${alarmId} NODE:${nodeLabel}", config.getMessageFormat());
-                
+
                 JmsDestination jmsDestination = config.getDestinations().get(0);
                 assertNotNull(jmsDestination);
                 assertEquals("OpenNMSAlarmQueue", jmsDestination.getJmsDestination());
@@ -84,14 +84,14 @@ public class JmsConfigDaoTest {
                 assertEquals(true, jmsDestination.isFirstOccurrenceOnly());
                 assertEquals(false, jmsDestination.isSendAsObjectMessageEnabled());
                 assertEquals(null,  jmsDestination.getMessageFormat());
-                
+
                 assertEquals("uei.opennms.org/nodes/nodeDown", config.getUeis().get(0));
                 assertEquals("uei.opennms.org/nodes/nodeUp", config.getUeis().get(1));
-                
+
         }
 
 	String xmlAsObjectMessageTopicAllAlarmsNoUeis = "" +
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
 			"<jms-northbounder-config>" +
 			"  <enabled>false</enabled>" +
 			"  <nagles-delay>10000</nagles-delay>" +
@@ -108,18 +108,18 @@ public class JmsConfigDaoTest {
 			"</jms-northbounder-config>\n" +
 			"";
 
-	
+
 	@Test
 	public void testAsObjectMessageTopicAllAlarmsNoUeis() {
 		Resource resource = new ByteArrayResource(xmlAsObjectMessageTopicAllAlarmsNoUeis.getBytes());
-		
+
 		JmsNorthbounderConfigDao dao = new JmsNorthbounderConfigDao();
 		dao.setConfigResource(resource);
-		
+
 		dao.afterPropertiesSet();
-		
+
 		JmsNorthbounderConfig config = dao.getConfig();
-		
+
 		assertNotNull(config);
 		assertEquals(null, config.getUeis());
 		assertTrue(!config.getDestinations().get(0).isFirstOccurrenceOnly());
@@ -130,5 +130,5 @@ public class JmsConfigDaoTest {
                 assertEquals(new Integer(10), config.getBatchSize());
                 assertEquals(new Integer(100), config.getQueueSize());
 	}
-	
+
 }
