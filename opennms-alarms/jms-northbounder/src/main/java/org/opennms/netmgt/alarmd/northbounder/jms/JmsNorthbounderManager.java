@@ -50,6 +50,18 @@ import org.springframework.util.Assert;
 public class JmsNorthbounderManager implements InitializingBean,
         DisposableBean {
 
+    @Override
+    public void destroy() throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+/*
     @Autowired
     private ServiceRegistry m_serviceRegistry;
 
@@ -90,6 +102,6 @@ public class JmsNorthbounderManager implements InitializingBean,
         for(Registration r : m_registrations.values()){
             r.unregister();
         }
-    }
+    }*/
 
 }
