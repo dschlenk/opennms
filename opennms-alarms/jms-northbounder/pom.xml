@@ -57,13 +57,15 @@
         <groupId>org.opennms.dependencies</groupId>
         <artifactId>spring-dependencies</artifactId>
         <type>pom</type>
+        <scope>provided</scope>
     </dependency>
+    <!-- test dependencies -->
     <dependency>
         <groupId>org.opennms.dependencies</groupId>
         <artifactId>activemq-dependencies</artifactId>
         <type>pom</type>
+        <scope>provided</scope>
     </dependency>
-    <!-- test dependencies -->
     <dependency>
       <groupId>org.opennms</groupId>
       <artifactId>opennms-test</artifactId>
