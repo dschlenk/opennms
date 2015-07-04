@@ -6,7 +6,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://xmlns.opennms.org/xsd/spring/onms-osgi http://xmlns.opennms.org/xsd/spring/onms-osgi.xsd		
 	">
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+	<!-- <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 	<bean name="m_jmsNorthbounderConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
 		<property name="targetConnectionFactory" ref="${opennms.alarms.northbound.jms.connectionFactoryImplRef:activemqConnectionFactory}"></property>
 	</bean>
@@ -18,5 +18,5 @@
 	<bean name="jmsNorthbounderConfigDao" class="org.opennms.netmgt.alarmd.northbounder.jms.JmsNorthbounderConfigDao">
       <property name="configResource" value="file:${opennms.home}/etc/jms-northbounder-configuration.xml" />
     </bean>
-	<bean name="jmsNorthbounderManager" class="org.opennms.netmgt.alarmd.northbounder.jms.JmsNorthbounderManager" />
+	<bean name="jmsNorthbounderManager" class="org.opennms.netmgt.alarmd.northbounder.jms.JmsNorthbounderManager" /> -->
 </beans>
