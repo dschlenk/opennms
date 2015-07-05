@@ -74,32 +74,8 @@ import org.springframework.jms.core.MessageCreator;
  * @author <a href="mailto:dschlenk@converge-one.com">David Schlenk</a>
  * @version $Id: $
  */
-public class JmsNorthbounder extends AbstractNorthbounder implements
-        InitializingBean {
-
-    protected JmsNorthbounder(String name) {
-        super(name);
-        // TODO Auto-generated constructor stub
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    protected boolean accepts(NorthboundAlarm alarm) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void forwardAlarms(List<NorthboundAlarm> alarms)
-            throws NorthbounderException {
-        // TODO Auto-generated method stub
-        
-    }
+public class JmsNorthbounder { /*extends AbstractNorthbounder implements
+        InitializingBean { */
     /*private static final Logger LOG = LoggerFactory.getLogger(JmsNorthbounder.class);
 
     public static final String NBI_NAME = "JmsNorthbounder";
