@@ -28,32 +28,6 @@
 
 package org.opennms.netmgt.alarmd.northbounder.jms;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-
-import org.apache.commons.lang.StringUtils;
-import org.opennms.core.spring.BeanUtils;
-import org.opennms.core.utils.PropertiesUtils;
-import org.opennms.netmgt.alarmd.api.NorthboundAlarm;
-import org.opennms.netmgt.alarmd.api.NorthboundAlarm.AlarmType;
-import org.opennms.netmgt.alarmd.api.NorthboundAlarm.x733ProbableCause;
-import org.opennms.netmgt.alarmd.api.NorthbounderException;
-import org.opennms.netmgt.alarmd.api.support.AbstractNorthbounder;
-import org.opennms.netmgt.alarmd.northbounder.jms.JmsDestination.DestinationType;
-import org.opennms.netmgt.dao.api.NodeDao;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.jms.JmsException;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
 
 
 /**

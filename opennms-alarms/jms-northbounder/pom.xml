@@ -49,7 +49,7 @@
       <artifactId>opennms-alarm-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.opennms</groupId>
       <artifactId>opennms-dao</artifactId>
     </dependency>
@@ -58,24 +58,24 @@
         <artifactId>spring-dependencies</artifactId>
         <type>pom</type>
         <scope>provided</scope>
-    </dependency>
+    </dependency> -->
     <!-- test dependencies -->
-    <dependency>
+    <!--    <dependency>
         <groupId>org.opennms.dependencies</groupId>
         <artifactId>activemq-dependencies</artifactId>
         <type>pom</type>
         <scope>provided</scope>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.opennms</groupId>
       <artifactId>opennms-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.opennms.core.test-api</groupId>
       <artifactId>org.opennms.core.test-api.http</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
   </dependencies>
     <repositories>
     <repository>
