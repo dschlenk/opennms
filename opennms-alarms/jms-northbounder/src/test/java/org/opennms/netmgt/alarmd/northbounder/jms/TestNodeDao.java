@@ -28,24 +28,9 @@
 
 package org.opennms.netmgt.alarmd.northbounder.jms;
 
-import java.net.InetAddress;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
-import org.opennms.core.criteria.Criteria;
-import org.opennms.netmgt.dao.api.NodeDao;
-import org.opennms.netmgt.model.OnmsCategory;
-import org.opennms.netmgt.model.OnmsCriteria;
-import org.opennms.netmgt.model.OnmsDistPoller;
-import org.opennms.netmgt.model.OnmsIpInterface;
-import org.opennms.netmgt.model.OnmsNode;
-import org.opennms.netmgt.model.SurveillanceStatus;
-
-public class TestNodeDao implements NodeDao {
-    public static final String NODE_LABEL = "schlazor";
+public class TestNodeDao { //implements NodeDao {
+/*    public static final String NODE_LABEL = "schlazor";
     public static final int NODE_ID = 777;
     @Override
     public OnmsNode get(Integer id) {
@@ -267,5 +252,5 @@ public class TestNodeDao implements NodeDao {
     @Override
     public Map<Integer, String> getAllLabelsById() {
         return null;
-    }
+    }*/
 }
