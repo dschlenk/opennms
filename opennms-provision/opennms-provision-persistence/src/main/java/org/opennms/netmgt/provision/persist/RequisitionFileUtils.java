@@ -48,7 +48,8 @@ import org.springframework.core.io.Resource;
 public abstract class RequisitionFileUtils {
     
     private static final Logger LOG = LoggerFactory.getLogger(RequisitionFileUtils.class);
-
+    private static final int FILE_RETRIES = 3;
+    
     static void createPath(final File fsPath) throws ForeignSourceRepositoryException {
         if (!fsPath.exists()) {
             if (!fsPath.mkdirs()) {
@@ -66,11 +67,23 @@ public abstract class RequisitionFileUtils {
     }
 
     static Requisition getRequisitionFromFile(final File inputFile) throws ForeignSourceRepositoryException {
+        Requisition req = null;
+        for(int i = 0; req == null && i< FILE_RETRIES; i++){
+            try {
+                req = JaxbUtils.unmarshal(Requisition.class, inputFile);
+            } catch (final Throwable e) {
+                //silently fail until the last retry! This isn't a dirty hack at all!
+                if(i == (FILE_RETRIES - 1)){
+                    throw new ForeignSourceRepositoryException("unable to unmarshal " + inputFile.getPath(), e);
+                }
+            }
+        }
         try {
-            return JaxbUtils.unmarshal(Requisition.class, inputFile);
+            req = JaxbUtils.unmarshal(Requisition.class, inputFile);
         } catch (final Throwable e) {
             throw new ForeignSourceRepositoryException("unable to unmarshal " + inputFile.getPath(), e);
         }
+        return req;
     }
 
     static File getOutputFileForForeignSource(final String path, final ForeignSource foreignSource) {
