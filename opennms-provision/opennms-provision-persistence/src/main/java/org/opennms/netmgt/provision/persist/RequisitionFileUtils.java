@@ -48,7 +48,7 @@ import org.springframework.core.io.Resource;
 public abstract class RequisitionFileUtils {
     
     private static final Logger LOG = LoggerFactory.getLogger(RequisitionFileUtils.class);
-    private static final int FILE_RETRIES = 3;
+    private static final int FILE_RETRIES = 1;
     
     static void createPath(final File fsPath) throws ForeignSourceRepositoryException {
         if (!fsPath.exists()) {
@@ -77,11 +77,6 @@ public abstract class RequisitionFileUtils {
                     throw new ForeignSourceRepositoryException("unable to unmarshal " + inputFile.getPath(), e);
                 }
             }
-        }
-        try {
-            req = JaxbUtils.unmarshal(Requisition.class, inputFile);
-        } catch (final Throwable e) {
-            throw new ForeignSourceRepositoryException("unable to unmarshal " + inputFile.getPath(), e);
         }
         return req;
     }
