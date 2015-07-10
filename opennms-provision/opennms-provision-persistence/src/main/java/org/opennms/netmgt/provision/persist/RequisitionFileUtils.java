@@ -48,7 +48,7 @@ import org.springframework.core.io.Resource;
 public abstract class RequisitionFileUtils {
     
     private static final Logger LOG = LoggerFactory.getLogger(RequisitionFileUtils.class);
-    private static final int FILE_RETRIES = 1;
+    private static final int FILE_RETRIES = 3;
     
     static void createPath(final File fsPath) throws ForeignSourceRepositoryException {
         if (!fsPath.exists()) {
