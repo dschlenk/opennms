@@ -74,7 +74,6 @@ public abstract class Bootstrap {
             return name.endsWith(".jar");
         }
     };
-    private static HostRMIServerSocketFactory m_rmiServerSocketFactory;
 
     /**
      * Create a ClassLoader with the JARs found in dirStr.
@@ -382,18 +381,13 @@ public abstract class Bootstrap {
     }
 
     private static void configureRMI(final ClassLoader cl) throws IOException {
-        if (m_rmiServerSocketFactory != null) {
-            // socket already configured
-            return;
-        }
-
         final String host = System.getProperty("opennms.poller.server.serverHost", "localhost");
         if ("localhost".equals(host) || "127.0.0.1".equals(host) || "::1".equals(host)) {
             if (System.getProperty("java.rmi.server.hostname") == null) {
                 System.setProperty("java.rmi.server.hostname", host);
             }
-            m_rmiServerSocketFactory = new HostRMIServerSocketFactory("localhost");
-            RMISocketFactory.setSocketFactory(m_rmiServerSocketFactory);
+            final HostRMIServerSocketFactory sf = new HostRMIServerSocketFactory("localhost");
+            RMISocketFactory.setSocketFactory(sf);
         }
     }
 

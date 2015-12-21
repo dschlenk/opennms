@@ -1,7 +1,6 @@
 package org.opennms.bootstrap;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,7 +8,7 @@ import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMIServerSocketFactory;
 import java.rmi.server.RMISocketFactory;
 
-public class HostRMIServerSocketFactory extends RMISocketFactory implements RMIServerSocketFactory, RMIClientSocketFactory, Serializable {
+public class HostRMIServerSocketFactory extends RMISocketFactory implements RMIServerSocketFactory, RMIClientSocketFactory {
     private String m_host;
 
     public HostRMIServerSocketFactory() {
