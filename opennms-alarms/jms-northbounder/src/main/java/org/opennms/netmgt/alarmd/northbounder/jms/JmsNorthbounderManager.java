@@ -28,7 +28,9 @@
 
 package org.opennms.netmgt.alarmd.northbounder.jms;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 

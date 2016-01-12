@@ -1,31 +1,3 @@
-/*******************************************************************************
- * This file is part of OpenNMS(R).
- *
- * Copyright (C) 2013-2014 The OpenNMS Group, Inc.
- * OpenNMS(R) is Copyright (C) 1999-2014 The OpenNMS Group, Inc.
- *
- * OpenNMS(R) is a registered trademark of The OpenNMS Group, Inc.
- *
- * OpenNMS(R) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License,
- * or (at your option) any later version.
- *
- * OpenNMS(R) is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with OpenNMS(R).  If not, see:
- *      http://www.gnu.org/licenses/
- *
- * For more information contact:
- *     OpenNMS(R) Licensing <license@opennms.org>
- *     http://www.opennms.org/
- *     http://www.opennms.com/
- *******************************************************************************/
-
 package org.opennms.netmgt.alarmd.northbounder.syslog;
 
 import java.io.BufferedReader;
@@ -43,8 +15,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opennms.core.test.MockLogAppender;
+import org.opennms.core.test.OpenNMSJUnit4ClassRunner;
 import org.opennms.netmgt.alarmd.api.NorthboundAlarm;
+import org.opennms.netmgt.dao.mock.MockNodeDao;
 import org.opennms.netmgt.model.OnmsAlarm;
 import org.opennms.netmgt.model.OnmsDistPoller;
 import org.opennms.netmgt.model.OnmsIpInterface;
@@ -52,12 +27,14 @@ import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.OnmsSeverity;
 import org.opennms.netmgt.model.OnmsSnmpInterface;
 import org.opennms.netmgt.model.PrimaryType;
+import org.opennms.test.JUnitConfigurationEnvironment;
 import org.productivity.java.syslog4j.server.SyslogServer;
 import org.productivity.java.syslog4j.server.SyslogServerConfigIF;
 import org.productivity.java.syslog4j.server.SyslogServerEventHandlerIF;
 import org.productivity.java.syslog4j.server.SyslogServerIF;
 import org.productivity.java.syslog4j.server.impl.event.printstream.PrintStreamSyslogServerEventHandler;
 import org.productivity.java.syslog4j.server.impl.net.udp.UDPNetSyslogServerConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
@@ -67,20 +44,25 @@ import org.springframework.test.context.ContextConfiguration;
  * 
  * @author <a href="mailto:david@opennms.org">David Hustace</a>
  */
-//@RunWith(OpenNMSJUnit4ClassRunner.class)
-// context not used but we this annotation is mandatory
-@ContextConfiguration(locations = "classpath:/test-context.xml")
+@RunWith(OpenNMSJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+        "classpath:/test-context.xml",
+        "classpath:/META-INF/opennms/applicationContext-soa.xml",
+        "classpath:/META-INF/opennms/applicationContext-mockDao.xml"
+})
+@JUnitConfigurationEnvironment
 // TODO:Would be great to do something like the following annotation...
 // @JUnitSyslogServer(port=8514)
 public class SyslogNorthBounderTest {
     
-
-    private static final int TEST_NODE_ID = 777;
     private static final String SERVER_HOST = "127.0.0.1";
     public static final int MESSAGE_LENGTH = 1024;
     private static final int SERVER_PORT = 8514;
     private static final String SERVER_PROTOCOL = "UDP";
     private static final String FACILITY = "LOCAL0";
+
+    @Autowired
+    private MockNodeDao m_nodeDao;
 
     public SyslogServerIF m_server;
     public TestPrintStream m_logStream;
@@ -163,7 +145,7 @@ public class SyslogNorthBounderTest {
     @After
     public void stopServer() throws InterruptedException {
         m_server.shutdown();
-        MockLogAppender.assertNoWarningsOrGreater();
+        MockLogAppender.assertNoErrorOrGreater();
     }
 
     
@@ -191,19 +173,18 @@ public class SyslogNorthBounderTest {
         
         for (SyslogDestination syslogDestination : destinations) {
             SyslogNorthbounder nbi = new SyslogNorthbounder(config, syslogDestination);
-            nbi.setNodeDao(new TestNodeDao());
+            nbi.setNodeDao(m_nodeDao);
             nbi.afterPropertiesSet();
             nbis.add(nbi);
         }
 
         int j = 7;
         List<NorthboundAlarm> alarms = new LinkedList<NorthboundAlarm>();
-        
         OnmsDistPoller distpoller = new OnmsDistPoller("barbrady", "192.0.2.11");
         OnmsNode node = new OnmsNode(distpoller, "p-brane");
         node.setForeignSource("TestGroup");
         node.setForeignId("1");
-        node.setId(TEST_NODE_ID);
+        node.setId(m_nodeDao.getNextNodeId());
         
         OnmsSnmpInterface snmpInterface = new OnmsSnmpInterface(node, 1);
         snmpInterface.setId(1);
@@ -224,7 +205,8 @@ public class SyslogNorthBounderTest {
         ipInterfaces.add(onmsIf);
         
         node.setIpInterfaces(ipInterfaces);
-
+        m_nodeDao.save(node);
+        m_nodeDao.flush();
         for (SyslogNorthbounder nbi : nbis) {
 
             for (int i = 1; i <=j; ++i) {
