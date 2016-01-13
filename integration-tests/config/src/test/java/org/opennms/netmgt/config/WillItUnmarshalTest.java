@@ -52,6 +52,7 @@ import org.opennms.features.reporting.model.basicreport.LegacyLocalReportsDefini
 import org.opennms.features.reporting.model.jasperreport.LocalJasperReports;
 import org.opennms.features.reporting.model.remoterepository.RemoteRepositoryConfig;
 import org.opennms.netmgt.alarmd.northbounder.syslog.SyslogNorthbounderConfig;
+import org.opennms.netmgt.alarmd.northbounder.jms.JmsNorthbounderConfig;
 import org.opennms.netmgt.config.ackd.AckdConfiguration;
 import org.opennms.netmgt.config.actiond.ActiondConfiguration;
 import org.opennms.netmgt.config.ami.AmiConfig;
@@ -234,6 +235,7 @@ public class WillItUnmarshalTest {
         addFile(Source.CONFIG, "rtc-configuration.xml", RTCConfiguration.class, Impl.CASTOR);
         addFile(Source.CONFIG, "scriptd-configuration.xml", ScriptdConfiguration.class, Impl.CASTOR);
         addFile(Source.CONFIG, "syslog-northbounder-configuration.xml", SyslogNorthbounderConfig.class, Impl.JAXB);
+        addFile(Source.CONFIG, "jms-northbounder-configuration.xml", JmsNorthbounderConfig.class, Impl.JAXB);
         addFile(Source.EXAMPLE, "scriptd-configuration.xml", ScriptdConfiguration.class, Impl.CASTOR);
         addFile(Source.EXAMPLE, "event-proxy/Proxy.events.xml", Events.class, Impl.JAXB);
         addFile(Source.EXAMPLE, "event-proxy/scriptd-configuration.xml", ScriptdConfiguration.class, Impl.CASTOR);
