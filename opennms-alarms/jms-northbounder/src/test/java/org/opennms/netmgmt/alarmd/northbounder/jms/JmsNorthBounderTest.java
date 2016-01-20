@@ -134,33 +134,11 @@ public class JmsNorthBounderTest {
 
         int j = 7;
         List<NorthboundAlarm> alarms = new LinkedList<NorthboundAlarm>();
-        OnmsDistPoller distpoller = new OnmsDistPoller("barbrady",
-                                                       "192.0.2.11");
-        OnmsNode node = new OnmsNode(distpoller, NODE_LABEL);
+        OnmsNode node = new OnmsNode(null, NODE_LABEL);
         node.setForeignSource("TestGroup");
-        node.setForeignId("1");
+        node.setForeignId("2");
         node.setId(m_nodeDao.getNextNodeId());
 
-        OnmsSnmpInterface snmpInterface = new OnmsSnmpInterface(node, 1);
-        snmpInterface.setId(1);
-        snmpInterface.setIfAlias("Connection to OpenNMS Wifi");
-        snmpInterface.setIfDescr("en1");
-        snmpInterface.setIfName("en1/0");
-        snmpInterface.setPhysAddr("00:00:00:00:00:01");
-
-        Set<OnmsIpInterface> ipInterfaces = new LinkedHashSet<OnmsIpInterface>(
-                                                                               j);
-        InetAddress address = InetAddress.getByName("10.0.1.1");
-        OnmsIpInterface onmsIf = new OnmsIpInterface(address, node);
-        onmsIf.setSnmpInterface(snmpInterface);
-        onmsIf.setId(1);
-        onmsIf.setIfIndex(1);
-        onmsIf.setIpHostName(NODE_LABEL);
-        onmsIf.setIsSnmpPrimary(PrimaryType.PRIMARY);
-
-        ipInterfaces.add(onmsIf);
-
-        node.setIpInterfaces(ipInterfaces);
         m_nodeDao.save(node);
         m_nodeDao.flush();
         // TX via NBIs
