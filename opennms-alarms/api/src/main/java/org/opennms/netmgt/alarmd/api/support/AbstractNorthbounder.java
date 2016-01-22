@@ -28,10 +28,19 @@
 
 package org.opennms.netmgt.alarmd.api.support;
 
+import java.io.Serializable;
+import java.io.StringWriter;
+
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
 import org.opennms.netmgt.alarmd.api.NorthboundAlarm;
@@ -201,7 +210,11 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         mapping.put("ossKey", alarm.getOssKey());
         mapping.put("ossState", alarm.getOssState());
         mapping.put("ticketId", alarm.getTicketId());
+        mapping.put("ticketState", alarm.getTicketState());
         mapping.put("alarmUei", alarm.getUei());
+        mapping.put("alarmKey", alarm.getAlarmKey());
+        mapping.put("description", alarm.getDesc());
+        mapping.put("operInstruct", alarm.getOperInst());
         mapping.put("ackTime", nullSafeToString(alarm.getAckTime(), ""));
 
         AlarmType alarmType = alarm.getAlarmType() == null ? AlarmType.NOTIFICATION
@@ -252,8 +265,12 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
             mapping.put("x733ProbableCause", nullSafeToString(x733ProbableCause.other, ""));
         }
 
+        // Get all event parms as a string
+        mapping.put("eventParms", nullSafeToString(alarm.getEventParms(), ""));
+        // Get all event parms serialized to XML
+        buildParmMappingXml(alarm, mapping);
+        // Do individual event mappings
         buildParmMappings(alarm, mapping);
-
         alarmMappings.put(alarm.getId(), mapping);
         return mapping;
     }
@@ -267,28 +284,14 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
 
     private void buildParmMappings(final NorthboundAlarm alarm,
             final Map<String, Object> mapping) {
-        List<EventParm<?>> parmCollection = new LinkedList<EventParm<?>>();
         String parms = alarm.getEventParms();
         if (parms == null)
             return;
-
-        char separator = ';';
-        String[] parmArray = StringUtils.split(parms, separator);
-        for (String string : parmArray) {
-
-            char nameValueDelim = '=';
-            String[] nameValueArray = StringUtils.split(string,
-                                                        nameValueDelim);
-            String parmName = nameValueArray[0];
-            String parmValue = StringUtils.split(nameValueArray[1], '(')[0];
-
-            EventParm<String> eventParm = new EventParm<String>(parmName,
-                                                                parmValue);
-            parmCollection.add(eventParm);
-        }
+        EventParms eventParms = new EventParms(parms);
+        List<EventParm> parmCollection = eventParms.getEventParms();
 
         for (int i = 0; i < parmCollection.size(); i++) {
-            EventParm<?> parm = parmCollection.get(i);
+            EventParm parm = parmCollection.get(i);
             Integer parmOffset = i + 1;
             mapping.put("parm[name-#" + parmOffset + "]", parm.getParmName());
             mapping.put("parm[#" + parmOffset + "]",
@@ -298,11 +301,65 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         }
     }
 
-    private static class EventParm<T extends Object> {
-        private String m_parmName;
-        private T m_parmValue;
+    private void buildParmMappingXml(final NorthboundAlarm alarm,
+            final Map<String, Object> mapping) {
+        String parms = alarm.getEventParms();
+        if (parms == null)
+            return;
+        EventParms eventParms = new EventParms(parms);
+        try {
+        JAXBContext jc = JAXBContext.newInstance(EventParms.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+        JAXBElement<EventParms> rootElement = new JAXBElement<EventParms>(new QName("eventParms"), EventParms.class, eventParms);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(rootElement, sw);
+        mapping.put("eventParmsXml", sw);
+        } catch (JAXBException e) {
+            LOG.error("Error marshalling event params to XML for alarm ID: {}", alarm.getId(), e);
+        }
+    }
 
-        EventParm(String name, T value) {
+    private static class EventParms implements Serializable {
+
+        private List<EventParm> m_eventParms = new ArrayList<EventParm>();
+
+        public EventParms(String eventParms){
+            if (eventParms == null || !eventParms.contains(";"))
+                return;
+
+            String[] parmArray = StringUtils.split(eventParms, ";");
+            for (String string : parmArray) {
+                if (!string.contains("="))
+                    continue;
+                String[] nameValueArray = StringUtils.split(string, "=");
+                if ((nameValueArray.length < 2)
+                        || (!nameValueArray[1].contains("(")))
+                    continue;
+                String parmName = nameValueArray[0];
+                String parmValue = StringUtils.split(nameValueArray[1], "(")[0];
+
+                EventParm eventParm =
+                        new EventParm(nameValueArray[0],
+                                StringUtils.split(nameValueArray[1], "(")[0]);
+                m_eventParms.add(eventParm);
+            }
+        }
+        
+        public List<EventParm> getEventParms(){
+            return m_eventParms;
+        }
+        public void setEventParms(List<EventParm> parms){
+            m_eventParms = parms;
+        }
+    }
+
+    private static class EventParm implements Serializable {
+        private String m_parmName;
+        private String m_parmValue;
+
+        EventParm(String name, String value) {
             m_parmName = name;
             m_parmValue = value;
         }
@@ -310,9 +367,14 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         public String getParmName() {
             return m_parmName;
         }
-
-        public T getParmValue() {
-            return (T) m_parmValue;
+        public void setParmName(String parmName){
+            m_parmName = parmName;
+        }
+        public String getParmValue() {
+            return m_parmValue;
+        }
+        public void setParmValue(String parmValue){
+            m_parmValue = parmValue;
         }
     }
 
