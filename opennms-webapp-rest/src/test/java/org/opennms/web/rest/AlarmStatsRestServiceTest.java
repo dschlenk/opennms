@@ -43,6 +43,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opennms.core.test.MockLogAppender;
@@ -133,6 +134,7 @@ public class AlarmStatsRestServiceTest extends AbstractSpringJerseyRestTestCase 
      */
     @Test
     @JUnitTemporaryDatabase
+    @Ignore
     public void testGetAlarmStatsJson() throws Exception {
         createAlarm(OnmsSeverity.CLEARED, "admin");
         createAlarm(OnmsSeverity.MAJOR, "admin");

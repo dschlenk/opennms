@@ -163,7 +163,6 @@ public class ConnectionFactoryTest extends TestCase {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					} finally {
-						/*
 						if (conn != null) {
 							try {
 								Statement stmt = conn.createStatement();
@@ -173,7 +172,6 @@ public class ConnectionFactoryTest extends TestCase {
 								fail("Exception thrown when trying to close connection");
 							}
 						}
-						*/
 					}
 				}
 			}.start();
