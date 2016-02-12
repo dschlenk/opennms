@@ -71,6 +71,8 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNorthbounder.class);
     private final String m_name;
     private final AlarmQueue<NorthboundAlarm> m_queue;
+    private JAXBContext m_jc;
+    private Marshaller m_marshaller;
     protected NodeDao m_nodeDao;
 
     private volatile boolean m_stopped = true;
@@ -80,6 +82,18 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
     protected AbstractNorthbounder(String name) {
         m_name = name;
         m_queue = new AlarmQueue<NorthboundAlarm>(this);
+        initMarshaller();
+    }
+
+    private void initMarshaller() {
+        try {
+            m_jc = JAXBContext.newInstance(EventParms.class);
+            m_marshaller = m_jc.createMarshaller();
+            m_marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            m_marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+        } catch (JAXBException e) {
+            LOG.error("Error initiallzing JAXB marshaller in thread {}", getName());
+        }
     }
 
     public NodeDao getNodeDao() {
@@ -202,19 +216,19 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
             NorthboundAlarm alarm) {
         Map<String, Object> mapping;
         mapping = new HashMap<String, Object>();
-        mapping.put("ackUser", alarm.getAckUser());
-        mapping.put("appDn", alarm.getAppDn());
-        mapping.put("logMsg", alarm.getLogMsg());
-        mapping.put("objectInstance", alarm.getObjectInstance());
-        mapping.put("objectType", alarm.getObjectType());
-        mapping.put("ossKey", alarm.getOssKey());
-        mapping.put("ossState", alarm.getOssState());
-        mapping.put("ticketId", alarm.getTicketId());
-        mapping.put("ticketState", alarm.getTicketState());
-        mapping.put("alarmUei", alarm.getUei());
-        mapping.put("alarmKey", alarm.getAlarmKey());
-        mapping.put("description", alarm.getDesc());
-        mapping.put("operInstruct", alarm.getOperInst());
+        mapping.put("ackUser", nullSafeToString(alarm.getAckUser(), ""));
+        mapping.put("appDn", nullSafeToString(alarm.getAppDn(), ""));
+        mapping.put("logMsg", nullSafeToString(alarm.getLogMsg(), ""));
+        mapping.put("objectInstance", nullSafeToString(alarm.getObjectInstance(), ""));
+        mapping.put("objectType", nullSafeToString(alarm.getObjectType(), ""));
+        mapping.put("ossKey", nullSafeToString(alarm.getOssKey(), ""));
+        mapping.put("ossState", nullSafeToString(alarm.getOssState(), ""));
+        mapping.put("ticketId", nullSafeToString(alarm.getTicketId(), ""));
+        mapping.put("ticketState", nullSafeToString(alarm.getTicketState(), ""));
+        mapping.put("alarmUei", nullSafeToString(alarm.getUei(), ""));
+        mapping.put("alarmKey", nullSafeToString(alarm.getAlarmKey(), ""));
+        mapping.put("description", nullSafeToString(alarm.getDesc(), ""));
+        mapping.put("operInstruct", nullSafeToString(alarm.getOperInst(), ""));
         mapping.put("ackTime", nullSafeToString(alarm.getAckTime(), ""));
 
         AlarmType alarmType = alarm.getAlarmType() == null ? AlarmType.NOTIFICATION
@@ -228,7 +242,7 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         mapping.put("firstOccurrence",
                     nullSafeToString(alarm.getFirstOccurrence(), ""));
         mapping.put("alarmId", alarm.getId().toString());
-        mapping.put("ipAddr", nullSafeToString(alarm.getIpAddr(), ""));
+        mapping.put("ipAddr", nullSafeToString(alarm.getIpAddr().getHostAddress(), ""));
         mapping.put("lastOccurrence",
                     nullSafeToString(alarm.getLastOccurrence(), ""));
 
@@ -253,7 +267,7 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         mapping.put("ticketState",
                     nullSafeToString(alarm.getTicketState(), ""));
 
-        mapping.put("x733AlarmType", alarm.getX733Type());
+        mapping.put("x733AlarmType", nullSafeToString(alarm.getX733Type(), ""));
 
         try {
             mapping.put("x733ProbableCause",
@@ -285,10 +299,10 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
     private void buildParmMappings(final NorthboundAlarm alarm,
             final Map<String, Object> mapping) {
         String parms = alarm.getEventParms();
-        if (parms == null)
+        if (parms != null)
             return;
         EventParms eventParms = new EventParms(parms);
-        List<EventParm> parmCollection = eventParms.getEventParms();
+        List<EventParm> parmCollection = eventParms.getEventParm();
 
         for (int i = 0; i < parmCollection.size(); i++) {
             EventParm parm = parmCollection.get(i);
@@ -303,27 +317,28 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
 
     private void buildParmMappingXml(final NorthboundAlarm alarm,
             final Map<String, Object> mapping) {
-        String parms = alarm.getEventParms();
-        if (parms == null)
-            return;
-        EventParms eventParms = new EventParms(parms);
-        try {
-        JAXBContext jc = JAXBContext.newInstance(EventParms.class);
-        Marshaller marshaller = jc.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        JAXBElement<EventParms> rootElement = new JAXBElement<EventParms>(new QName("eventParms"), EventParms.class, eventParms);
+        // Unlike the above method, we want an empty element to replace the
+        // mapping even if there aren't any parms.
         StringWriter sw = new StringWriter();
-        marshaller.marshal(rootElement, sw);
-        mapping.put("eventParmsXml", sw);
-        } catch (JAXBException e) {
-            LOG.error("Error marshalling event params to XML for alarm ID: {}", alarm.getId(), e);
+        String parms = alarm.getEventParms();
+        if (parms != null) {
+            EventParms eventParms = new EventParms(parms);
+            try {
+                if (m_marshaller == null) {
+                    initMarshaller();
+                }
+                JAXBElement<EventParms> rootElement = new JAXBElement<EventParms>(new QName("eventParms"), EventParms.class, eventParms);
+                m_marshaller.marshal(rootElement, sw);
+            } catch (JAXBException e) {
+                LOG.error("Error marshalling event params to XML for alarm ID: {}", alarm.getId(), e);
+            }
         }
+        mapping.put("eventParmsXml", sw.toString());
     }
 
     private static class EventParms implements Serializable {
 
-        private List<EventParm> m_eventParms = new ArrayList<EventParm>();
+        private List<EventParm> m_eventParm = new ArrayList<EventParm>();
 
         public EventParms(String eventParms){
             if (eventParms == null || !eventParms.contains(";"))
@@ -343,15 +358,15 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
                 EventParm eventParm =
                         new EventParm(nameValueArray[0],
                                 StringUtils.split(nameValueArray[1], "(")[0]);
-                m_eventParms.add(eventParm);
+                m_eventParm.add(eventParm);
             }
         }
         
-        public List<EventParm> getEventParms(){
-            return m_eventParms;
+        public List<EventParm> getEventParm(){
+            return m_eventParm;
         }
-        public void setEventParms(List<EventParm> parms){
-            m_eventParms = parms;
+        public void setEventParm(List<EventParm> parms){
+            m_eventParm = parms;
         }
     }
 

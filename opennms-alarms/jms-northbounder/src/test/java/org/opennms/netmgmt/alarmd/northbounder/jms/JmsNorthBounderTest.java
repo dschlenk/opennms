@@ -286,31 +286,31 @@ public class JmsNorthBounderTest {
 
         // Let's become a consumer and receive the message
         Message m = m_template.receive("MappingTestQueue");
-        String escapedResponse = "ackUser: ${ackUser} appDn: applicationDN logMsg: eventlogmsg objectInstance: managedObjectInstance objectType: managedObjectType ossKey: ossPrimaryKey\n" +
+        String escapedResponse = "ackUser:  appDn: applicationDN logMsg: eventlogmsg objectInstance: managedObjectInstance objectType: managedObjectType ossKey: ossPrimaryKey\n" +
                 " ossState: qosAlarmState ticketId: tticketId alarmUei: uei.uei.org/uei alarmKey: reductionKey description: eventdescr operInstruct: operInstruct ackTime: \n" +
-                " alarmType: PROBLEM count: 1 alarmId: 9 ipAddr: /127.0.0.1 lastOccurrence:  nodeId: 1\n" +
+                " alarmType: PROBLEM count: 1 alarmId: 9 ipAddr: 127.0.0.1 lastOccurrence:  nodeId: 1\n" +
                 " nodeLabel: schlazor distPoller: localhost ifService:  severity: WARNING ticketState:  x733AlarmType: other\n"+
                 " x733ProbableCause: other eventParms: syslogmessage=Dec 22 2015 20:12:57.1 UTC :  %UC_CTI-3-CtiProviderOpenFailure: %[CTIconnectionId%61232238][ Login User Id%61pguser][Reason code.%61-1932787616][UNKNOWN_PARAMNAME:IPAddress%61172.17.12.73][UNKNOWN_PARAMNAME:IPv6Address%61][App ID%61Cisco CTIManager][Cluster ID%61SplkCluster][Node ID%61splkcucm6p]: CTI application failed to open provider%59 application startup failed(string,text);severity=Error(string,text);timestamp=Dec 22 14:13:21(string,text);process=229250(string,text);service=local7(string,text) eventParmsXml: <eventParms>\n" +
-                "    <eventParms>\n" +
+                "    <eventParm>\n" +
                 "        <parmName>syslogmessage</parmName>\n" +
                 "        <parmValue>Dec 22 2015 20:12:57.1 UTC :  %UC_CTI-3-CtiProviderOpenFailure: %[CTIconnectionId%61232238][ Login User Id%61pguser][Reason code.%61-1932787616][UNKNOWN_PARAMNAME:IPAddress%61172.17.12.73][UNKNOWN_PARAMNAME:IPv6Address%61][App ID%61Cisco CTIManager][Cluster ID%61SplkCluster][Node ID%61splkcucm6p]: CTI application failed to open provider%59 application startup failed</parmValue>\n" +
-                "    </eventParms>\n" +
-                "    <eventParms>\n" +
+                "    </eventParm>\n" +
+                "    <eventParm>\n" +
                 "        <parmName>severity</parmName>\n" +
                 "        <parmValue>Error</parmValue>\n" +
-                "    </eventParms>\n" +
-                "    <eventParms>\n" +
+                "    </eventParm>\n" +
+                "    <eventParm>\n" +
                 "        <parmName>timestamp</parmName>\n" +
                 "        <parmValue>Dec 22 14:13:21</parmValue>\n" +
-                "    </eventParms>\n" +
-                "    <eventParms>\n" +
+                "    </eventParm>\n" +
+                "    <eventParm>\n" +
                 "        <parmName>process</parmName>\n" +
                 "        <parmValue>229250</parmValue>\n" +
-                "    </eventParms>\n" +
-                "    <eventParms>\n" +
+                "    </eventParm>\n" +
+                "    <eventParm>\n" +
                 "        <parmName>service</parmName>\n" +
                 "        <parmValue>local7</parmValue>\n" +
-                "    </eventParms>\n" +
+                "    </eventParm>\n" +
                 "</eventParms>";
         String response = ((TextMessage)m).getText();
         Assert.assertEquals("Contents of message\n'" + response + "'\n not equals\n'" + escapedResponse+"'.", response, escapedResponse);
