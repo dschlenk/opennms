@@ -59,6 +59,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sun.jersey.spi.resource.PerRequest;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import org.opennms.netmgt.model.TroubleTicketState;
 
 @Component
 @PerRequest
@@ -172,6 +174,7 @@ public class AlarmRestService extends AlarmRestServiceBase {
         writeLock();
 
         try {
+            boolean isProcessAck = true;
             if (alarmId == null) {
                 throw new IllegalArgumentException("Unable to determine alarm ID to update based on query path.");
             }
@@ -184,6 +187,10 @@ public class AlarmRestService extends AlarmRestServiceBase {
             formProperties.remove("clear");
             final String ackUserValue = formProperties.getFirst("ackUser");
             formProperties.remove("ackUser");
+            final String ticketIdValue = formProperties.getFirst("ticketId");
+            formProperties.remove("ticketId");
+            final String ticketSateValue = formProperties.getFirst("ticketState");
+            formProperties.remove("ticketState");
 
             final OnmsAlarm alarm = m_alarmDao.get(alarmId);
             if (alarm == null) {
@@ -209,13 +216,35 @@ public class AlarmRestService extends AlarmRestServiceBase {
                 if (Boolean.parseBoolean(clearValue)) {
                     acknowledgement.setAckAction(AckAction.CLEAR);
                 }
-            } else {
+            } else if (isNotBlank(ticketIdValue)) {
+                isProcessAck = false;
+                alarm.setTTicketId(ticketIdValue);
+            } else if (isValidEnum(TroubleTicketState.class, ticketSateValue)) {
+                isProcessAck = false;
+                alarm.setTTicketState(TroubleTicketState.valueOf(ticketSateValue));
+            }else {
                 throw new IllegalArgumentException("Must supply one of the 'ack', 'escalate', or 'clear' parameters, set to either 'true' or 'false'.");
             }
-            m_ackDao.processAck(acknowledgement);
+            if(isProcessAck) {
+                m_ackDao.processAck(acknowledgement);
+            }else{
+                m_alarmDao.saveOrUpdate(alarm);
+            }
             return Response.seeOther(getRedirectUri(m_uriInfo)).build();
         } finally {
             writeUnlock();
+        }
+    }
+
+    private static <E extends Enum<E>> boolean isValidEnum(final Class<E> enumClass, final String enumName) {
+        if (enumName == null) {
+            return false;
+        }
+        try {
+            Enum.valueOf(enumClass, enumName);
+            return true;
+        } catch (final IllegalArgumentException ex) {
+            return false;
         }
     }
 
