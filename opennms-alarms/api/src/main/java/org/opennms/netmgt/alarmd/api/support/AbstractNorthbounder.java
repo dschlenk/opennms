@@ -227,6 +227,7 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         mapping.put("ticketState", nullSafeToString(alarm.getTicketState(), ""));
         mapping.put("alarmUei", nullSafeToString(alarm.getUei(), ""));
         mapping.put("alarmKey", nullSafeToString(alarm.getAlarmKey(), ""));
+        mapping.put("clearKey", nullSafeToString(alarm.getClearKey(), ""));
         mapping.put("description", nullSafeToString(alarm.getDesc(), ""));
         mapping.put("operInstruct", nullSafeToString(alarm.getOperInst(), ""));
         mapping.put("ackTime", nullSafeToString(alarm.getAckTime(), ""));

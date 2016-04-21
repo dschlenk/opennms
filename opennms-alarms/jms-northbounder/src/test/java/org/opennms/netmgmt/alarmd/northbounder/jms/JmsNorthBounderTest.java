@@ -287,7 +287,7 @@ public class JmsNorthBounderTest {
         // Let's become a consumer and receive the message
         Message m = m_template.receive("MappingTestQueue");
         String escapedResponse = "ackUser:  appDn: applicationDN logMsg: eventlogmsg objectInstance: managedObjectInstance objectType: managedObjectType ossKey: ossPrimaryKey\n" +
-                " ossState: qosAlarmState ticketId: tticketId alarmUei: uei.uei.org/uei alarmKey: reductionKey description: eventdescr operInstruct: operInstruct ackTime: \n" +
+                " ossState: qosAlarmState ticketId: tticketId alarmUei: uei.uei.org/uei alarmKey: reductionKey clearKey: clearKey description: eventdescr operInstruct: operInstruct ackTime: \n" +
                 " alarmType: PROBLEM count: 1 alarmId: 9 ipAddr: 127.0.0.1 lastOccurrence:  nodeId: 1\n" +
                 " nodeLabel: schlazor distPoller: localhost ifService:  severity: WARNING ticketState:  x733AlarmType: other\n"+
                 " x733ProbableCause: other eventParms: syslogmessage=Dec 22 2015 20:12:57.1 UTC :  %UC_CTI-3-CtiProviderOpenFailure: %[CTIconnectionId%61232238][ Login User Id%61pguser][Reason code.%61-1932787616][UNKNOWN_PARAMNAME:IPAddress%61172.17.12.73][UNKNOWN_PARAMNAME:IPv6Address%61][App ID%61Cisco CTIManager][Cluster ID%61SplkCluster][Node ID%61splkcucm6p]: CTI application failed to open provider%59 application startup failed(string,text);severity=Error(string,text);timestamp=Dec 22 14:13:21(string,text);process=229250(string,text);service=local7(string,text) eventParmsXml: <eventParms>\n" +
@@ -343,7 +343,7 @@ public class JmsNorthBounderTest {
                 + "  <batch-size>30</batch-size>\n"
                 + "  <queue-size>30000</queue-size>\n"
                 + "  <message-format>ackUser: ${ackUser} appDn: ${appDn} logMsg: ${logMsg} objectInstance: ${objectInstance} objectType: ${objectType} ossKey: ${ossKey}\n"
-                + " ossState: ${ossState} ticketId: ${ticketId} alarmUei: ${alarmUei} alarmKey: ${alarmKey} description: ${description} operInstruct: ${operInstruct} ackTime: ${ackTime}\n"
+                + " ossState: ${ossState} ticketId: ${ticketId} alarmUei: ${alarmUei} alarmKey: ${alarmKey} clearKey: ${clearKey} description: ${description} operInstruct: ${operInstruct} ackTime: ${ackTime}\n"
                 + " alarmType: ${alarmType} count: ${count} alarmId: ${alarmId} ipAddr: ${ipAddr} lastOccurrence: ${lastOccurrence} nodeId: ${nodeId}\n"
                 + " nodeLabel: ${nodeLabel} distPoller: ${distPoller} ifService: ${ifService} severity: ${severity} ticketState: ${ticketState} x733AlarmType: ${x733AlarmType}\n"
                 + " x733ProbableCause: ${x733ProbableCause} eventParms: ${eventParms} eventParmsXml: ${eventParmsXml}</message-format>\n"
