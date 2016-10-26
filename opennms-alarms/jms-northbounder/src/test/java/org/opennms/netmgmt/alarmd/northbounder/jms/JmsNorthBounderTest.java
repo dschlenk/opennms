@@ -272,6 +272,7 @@ public class JmsNorthBounderTest {
             alarm.setReductionKey("reductionKey");
             alarm.setClearKey("clearKey");
             alarm.setOperInstruct("operInstruct");
+            alarm.setFirstEventTime(new Date(0));
             alarm.setAlarmType(1);
             alarm.setIpAddr(ia);
             alarm.setEventParms(eventparms);
@@ -290,7 +291,7 @@ public class JmsNorthBounderTest {
                 " ossState: qosAlarmState ticketId: tticketId alarmUei: uei.uei.org/uei alarmKey: reductionKey clearKey: clearKey description: eventdescr operInstruct: operInstruct ackTime: \n" +
                 " alarmType: PROBLEM count: 1 alarmId: 9 ipAddr: 127.0.0.1 lastOccurrence:  nodeId: 1\n" +
                 " nodeLabel: schlazor distPoller: localhost ifService:  severity: WARNING ticketState:  x733AlarmType: other\n"+
-                " x733ProbableCause: other eventParms: syslogmessage=Dec 22 2015 20:12:57.1 UTC :  %UC_CTI-3-CtiProviderOpenFailure: %[CTIconnectionId%61232238][ Login User Id%61pguser][Reason code.%61-1932787616][UNKNOWN_PARAMNAME:IPAddress%61172.17.12.73][UNKNOWN_PARAMNAME:IPv6Address%61][App ID%61Cisco CTIManager][Cluster ID%61SplkCluster][Node ID%61splkcucm6p]: CTI application failed to open provider%59 application startup failed(string,text);severity=Error(string,text);timestamp=Dec 22 14:13:21(string,text);process=229250(string,text);service=local7(string,text) eventParmsXml: <eventParms>\n" +
+                " x733ProbableCause: other firstOccurrence: " + org.opennms.core.utils.StringUtils.iso8601LocalOffsetString(new Date(0)) + " eventParms: syslogmessage=Dec 22 2015 20:12:57.1 UTC :  %UC_CTI-3-CtiProviderOpenFailure: %[CTIconnectionId%61232238][ Login User Id%61pguser][Reason code.%61-1932787616][UNKNOWN_PARAMNAME:IPAddress%61172.17.12.73][UNKNOWN_PARAMNAME:IPv6Address%61][App ID%61Cisco CTIManager][Cluster ID%61SplkCluster][Node ID%61splkcucm6p]: CTI application failed to open provider%59 application startup failed(string,text);severity=Error(string,text);timestamp=Dec 22 14:13:21(string,text);process=229250(string,text);service=local7(string,text) eventParmsXml: <eventParms>\n" +
                 "    <eventParm>\n" +
                 "        <parmName>syslogmessage</parmName>\n" +
                 "        <parmValue>Dec 22 2015 20:12:57.1 UTC :  %UC_CTI-3-CtiProviderOpenFailure: %[CTIconnectionId%61232238][ Login User Id%61pguser][Reason code.%61-1932787616][UNKNOWN_PARAMNAME:IPAddress%61172.17.12.73][UNKNOWN_PARAMNAME:IPv6Address%61][App ID%61Cisco CTIManager][Cluster ID%61SplkCluster][Node ID%61splkcucm6p]: CTI application failed to open provider%59 application startup failed</parmValue>\n" +
@@ -346,7 +347,7 @@ public class JmsNorthBounderTest {
                 + " ossState: ${ossState} ticketId: ${ticketId} alarmUei: ${alarmUei} alarmKey: ${alarmKey} clearKey: ${clearKey} description: ${description} operInstruct: ${operInstruct} ackTime: ${ackTime}\n"
                 + " alarmType: ${alarmType} count: ${count} alarmId: ${alarmId} ipAddr: ${ipAddr} lastOccurrence: ${lastOccurrence} nodeId: ${nodeId}\n"
                 + " nodeLabel: ${nodeLabel} distPoller: ${distPoller} ifService: ${ifService} severity: ${severity} ticketState: ${ticketState} x733AlarmType: ${x733AlarmType}\n"
-                + " x733ProbableCause: ${x733ProbableCause} eventParms: ${eventParms} eventParmsXml: ${eventParmsXml}</message-format>\n"
+                + " x733ProbableCause: ${x733ProbableCause} firstOccurrence: ${firstOccurrence} eventParms: ${eventParms} eventParmsXml: ${eventParmsXml}</message-format>\n"
                 + "  <destination>\n"
                 + "    <jms-destination>MappingTestQueue</jms-destination>\n"
                 + "    <send-as-object-message>false</send-as-object-message>\n"

@@ -33,6 +33,7 @@ import java.io.StringWriter;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -241,11 +242,11 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         mapping.put("count", count);
 
         mapping.put("firstOccurrence",
-                    nullSafeToString(alarm.getFirstOccurrence(), ""));
+                    nullSafeIso8601String(alarm.getFirstOccurrence(), ""));
         mapping.put("alarmId", alarm.getId().toString());
         mapping.put("ipAddr", nullSafeToString(alarm.getIpAddr().getHostAddress(), ""));
         mapping.put("lastOccurrence",
-                    nullSafeToString(alarm.getLastOccurrence(), ""));
+                    nullSafeIso8601String(alarm.getLastOccurrence(), ""));
 
         if (alarm.getNodeId() != null) {
             LOG.debug("Adding nodeId: " + alarm.getNodeId().toString());
@@ -336,7 +337,14 @@ public abstract class AbstractNorthbounder implements Northbounder, Runnable,
         }
         mapping.put("eventParmsXml", sw.toString());
     }
-
+    
+    private String nullSafeIso8601String(Date d, String defaultString) {
+        if(d != null) {
+            defaultString = org.opennms.core.utils.StringUtils.iso8601LocalOffsetString(d);
+        }
+        return defaultString;
+    }
+    
     private static class EventParms implements Serializable {
 
         private List<EventParm> m_eventParm = new ArrayList<EventParm>();
