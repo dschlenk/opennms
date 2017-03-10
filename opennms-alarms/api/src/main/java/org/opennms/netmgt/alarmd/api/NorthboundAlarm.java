@@ -28,6 +28,7 @@
 
 package org.opennms.netmgt.alarmd.api;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ import org.opennms.netmgt.model.TroubleTicketState;
  * 
  * @author <a mailto:david@opennms.org>David Hustace</a>
  */
-public class NorthboundAlarm implements Preservable {
+public class NorthboundAlarm implements Preservable, Serializable {
 	
 	public static final NorthboundAlarm SYNC_LOST_ALARM = new NorthboundAlarm(-1, "uei.opennms.org/alarmd/northbounderSyncLost");
 
