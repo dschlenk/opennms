@@ -135,6 +135,12 @@ public class JmsNorthbounder extends AbstractNorthbounder implements
         } else {
             Map<Integer, Map<String, Object>> alarmMappings = new HashMap<Integer, Map<String, Object>>();
             for (final NorthboundAlarm alarm : alarms) {
+                Integer count = alarm.getCount();
+                LOG.debug("Does destination {} take only first occurances? {} Is new alarm? Has count of {}.", m_jmsDestination.getName(), m_jmsDestination.isFirstOccurrenceOnly(), count);
+                if(count > 1 && m_jmsDestination.isFirstOccurrenceOnly()) {
+                    LOG.debug("Skipping because not new alarm.");
+                    continue;
+                }
                 LOG.debug("Attempting to send a message to "
                         + m_jmsDestination.getJmsDestination() + " of type "
                         + m_jmsDestination.getDestinationType());
