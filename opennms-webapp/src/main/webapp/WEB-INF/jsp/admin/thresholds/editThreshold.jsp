@@ -159,7 +159,7 @@
           <div class="col-md-12">
             <table class="table table-condensed">
             <tr><th>Field Name</th><th>Regular Expression</th><th>Actions</th></tr>
-              <c:forEach items="${threshold.resourceFilter}" var="filter" varStatus="i">
+              <c:forEach items="${threshold.resourceFilters}" var="filter" varStatus="i">
                 <tr>
                     <c:choose>
                       <c:when test="${i.count==filterSelected}">

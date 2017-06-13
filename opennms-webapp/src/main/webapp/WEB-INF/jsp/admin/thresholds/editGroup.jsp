@@ -87,7 +87,7 @@
             <th>&nbsp;</th>
             <th>&nbsp;</th>
         </tr>
-        <c:forEach items="${group.threshold}" varStatus="thresholdIndex" var="threshold">
+        <c:forEach items="${group.thresholds}" varStatus="thresholdIndex" var="threshold">
             <tr>
               <td>${threshold.type}</td>
               <td>${threshold.description}</td>
@@ -132,7 +132,7 @@
             <th>&nbsp;</th>
             <th>&nbsp;</th>
         </tr>
-          <c:forEach items="${group.expression}" varStatus="expressionIndex" var="expression">
+          <c:forEach items="${group.expressions}" varStatus="expressionIndex" var="expression">
             <tr>
               <td>${expression.type}</td>
               <td>${expression.description}</td>
