@@ -391,7 +391,7 @@ public class VmwareViJavaAccess {
                     if (perfMetricSeries[j] instanceof PerfMetricIntSeries) {
                         long[] longs = ((PerfMetricIntSeries) perfMetricSeries[j]).getValue();
 
-                        if (longs.length == 1) {
+                        if (longs.length == 1 && getPerfCounterInfoMap().containsKey(perfMetricSeries[j].getId().getCounterId())) {
 
                             PerfCounterInfo perfCounterInfo = getPerfCounterInfoMap().get(perfMetricSeries[j].getId().getCounterId());
                             String instance = perfMetricSeries[j].getId().getInstance();
