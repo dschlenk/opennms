@@ -135,7 +135,13 @@ public class CollectionSetMapper {
                             .newBuilder();
                     attributeBuilder.setGroup(lastGroupName);
                     attributeBuilder.setName(attribute.getName());
-                    attributeBuilder.setValue(attribute.getNumericValue().doubleValue());
+                    final Number number = attribute.getNumericValue();
+
+                    if (number != null) {
+                        attributeBuilder.setValue(attribute.getNumericValue().doubleValue());
+                    } else {
+                        attributeBuilder.setValue(Double.NaN);
+                    }
                     attributeBuilder.setType((attribute.getType() == AttributeType.GAUGE) ? Type.GAUGE : Type.COUNTER);
                     collectionSetResourceBuilder.addNumeric(attributeBuilder);
                 }
