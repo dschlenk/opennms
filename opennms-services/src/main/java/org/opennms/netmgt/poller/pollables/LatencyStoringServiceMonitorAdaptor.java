@@ -31,6 +31,7 @@ package org.opennms.netmgt.poller.pollables;
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -160,7 +161,12 @@ public class LatencyStoringServiceMonitorAdaptor implements ServiceMonitorAdapto
         //     This happens whether or not storeByGroup is enabled.
         // 2) If multiple entries are present, the DSs are created in the same order that they
         //    appear in the map
-        LatencyCollectionResource latencyResource = new LatencyCollectionResource(service.getSvcName(), service.getIpAddr(), service.getNodeLocation());
+        Map<String, String> tags = new HashMap<>();
+        tags.put("node_label", service.getNodeLabel());
+        tags.put("location", service.getNodeLocation());
+        tags.put("node_id", Integer.toString(service.getNodeId()));
+        LOG.debug("set node_id {} in tag for service {} for IP {}", tags.get("node_id"), service.getSvcName(), service.getIpAddr());
+        LatencyCollectionResource latencyResource = new LatencyCollectionResource(service.getSvcName(), service.getIpAddr(), service.getNodeLocation(), tags);
         for (final Entry<String, Number> entry : entries.entrySet()) {
             final String ds = entry.getKey();
             final Number value = entry.getValue() != null ? entry.getValue() : Double.NaN;

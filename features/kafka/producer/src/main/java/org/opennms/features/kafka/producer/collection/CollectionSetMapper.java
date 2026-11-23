@@ -30,8 +30,16 @@ package org.opennms.features.kafka.producer.collection;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
+import com.google.protobuf.DoubleValue;
+import org.opennms.core.utils.StringUtils;
 import org.opennms.features.kafka.producer.model.CollectionSetProtos;
 import org.opennms.features.kafka.producer.model.CollectionSetProtos.NumericAttribute.Type;
 import org.opennms.netmgt.collection.api.AttributeGroup;
@@ -40,9 +48,13 @@ import org.opennms.netmgt.collection.api.CollectionAttribute;
 import org.opennms.netmgt.collection.api.CollectionResource;
 import org.opennms.netmgt.collection.api.CollectionSet;
 import org.opennms.netmgt.collection.api.CollectionSetVisitor;
+import org.opennms.netmgt.collection.api.LatencyCollectionResource;
+import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.dao.api.NodeDao;
+import org.opennms.netmgt.dao.api.ResourceDao;
 import org.opennms.netmgt.dao.api.SessionUtils;
 import org.opennms.netmgt.model.OnmsNode;
+import org.opennms.netmgt.model.ResourceId;
 import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,19 +69,31 @@ public class CollectionSetMapper {
     @Autowired
     private NodeDao nodeDao;
 
+    @Autowired
+    private final ResourceDao resourceDao;
+    
     private final SessionUtils sessionUtils;
 
-    public CollectionSetMapper(NodeDao nodeDao, SessionUtils sessionUtils) {
+    public CollectionSetMapper(NodeDao nodeDao, SessionUtils sessionUtils, ResourceDao resourceDao) {
         this.nodeDao = Objects.requireNonNull(nodeDao);
         this.sessionUtils = Objects.requireNonNull(sessionUtils);
+        this.resourceDao = Objects.requireNonNull(resourceDao);
     }
 
     public CollectionSetProtos.CollectionSet buildCollectionSetProtos(CollectionSet collectionSet) {
         CollectionSetProtos.CollectionSet.Builder builder = CollectionSetProtos.CollectionSet.newBuilder();
 
+        final Map<String, CollectionSetProtos.NodeLevelResource.Builder> nodesInThisSet = new HashMap<>();
+
         collectionSet.visit(new CollectionSetVisitor() {
             CollectionSetProtos.CollectionSetResource.Builder collectionSetResourceBuilder;
             String lastGroupName = null;
+            int currentNodeId;
+
+            private CollectionSetProtos.NodeLevelResource.Builder nodeFor(String nodeCriteria) {
+                return nodesInThisSet.computeIfAbsent(nodeCriteria,
+                        CollectionSetMapper.this::buildNodeLevelResourceForProto);
+            }
 
             @Override
             public void visitCollectionSet(CollectionSet set) {
@@ -79,40 +103,81 @@ public class CollectionSetMapper {
             @Override
             public void visitResource(CollectionResource resource) {
                 collectionSetResourceBuilder = CollectionSetProtos.CollectionSetResource.newBuilder();
-                if (resource.getResourceTypeName().equals(CollectionResource.RESOURCE_TYPE_NODE)) {
-                    String nodeCriteria = getNodeCriteriaFromResource(resource);
-                    CollectionSetProtos.NodeLevelResource.Builder nodeResourceBuilder = buildNodeLevelResourceForProto(
-                            nodeCriteria);
+                // Only node, interface and generic resources carry resource-id info; response
+                // time resources never have. Kept separate from the routing node id below.
+                long resourceIdNodeId = 0;
+
+                final String nodeCriteria = getNodeCriteriaFromResource(resource);
+                final boolean isNodeResource = CollectionResource.RESOURCE_TYPE_NODE
+                        .equals(resource.getResourceTypeName());
+
+                // Resolve the node once, up front, so that every resource type - response time
+                // resources included - can see the node id. buildResponseTimeResource used to
+                // resolve it a second time and then discard it, which left latency resources
+                // with no node id to route on.
+                CollectionSetProtos.NodeLevelResource.Builder nodeResourceBuilder = null;
+                if (isNodeResource || !Strings.isNullOrEmpty(nodeCriteria)) {
+                    // Node resources are built even from an unparseable criteria, so that they
+                    // are still emitted (with node id 0) exactly as before.
+                    nodeResourceBuilder = nodeFor(nodeCriteria);
+                }
+
+                if (isNodeResource) {
+                    resourceIdNodeId = nodeResourceBuilder.getNodeId();
                     collectionSetResourceBuilder.setNode(nodeResourceBuilder);
                 } else if (resource.getResourceTypeName().equals(CollectionResource.RESOURCE_TYPE_IF)) {
                     CollectionSetProtos.InterfaceLevelResource.Builder interfaceResourceBuilder = CollectionSetProtos.InterfaceLevelResource
                             .newBuilder();
-                    String nodeCriteria = getNodeCriteriaFromResource(resource);
-                    if (!Strings.isNullOrEmpty(nodeCriteria)) {
-                        CollectionSetProtos.NodeLevelResource.Builder nodeResourceBuilder = buildNodeLevelResourceForProto(
-                                nodeCriteria);
+                    if (nodeResourceBuilder != null) {
+                        resourceIdNodeId = nodeResourceBuilder.getNodeId();
                         interfaceResourceBuilder.setNode(nodeResourceBuilder);
-                        interfaceResourceBuilder.setInstance(resource.getInterfaceLabel());
-                        collectionSetResourceBuilder.setInterface(interfaceResourceBuilder);
+                        Optional.ofNullable(resource.getInterfaceLabel()).ifPresent(interfaceResourceBuilder::setInstance);
+                        // Skip Aliased Resources which doesn't have instance.
+                        if (!Strings.isNullOrEmpty(resource.getInstance())) {
+                            Integer ifIndex = StringUtils.parseInt(resource.getInstance(), null);
+                            Optional.ofNullable(ifIndex).ifPresent(interfaceResourceBuilder::setIfIndex);
+                            collectionSetResourceBuilder.setInterface(interfaceResourceBuilder);
+                        }
                     }
                 } else if (resource.getResourceTypeName().equals(CollectionResource.RESOURCE_TYPE_LATENCY)) {
                     CollectionSetProtos.ResponseTimeResource.Builder responseTimeResource = buildResponseTimeResource(
-                            resource);
+                            resource, nodeResourceBuilder);
                     if (responseTimeResource != null) {
                         collectionSetResourceBuilder.setResponse(responseTimeResource);
                     }
                 } else {
                     CollectionSetProtos.GenericTypeResource.Builder genericResourceBuilder = CollectionSetProtos.GenericTypeResource
                             .newBuilder();
-                    String nodeCriteria = getNodeCriteriaFromResource(resource);
-                    if (!Strings.isNullOrEmpty(nodeCriteria)) {
-                        CollectionSetProtos.NodeLevelResource.Builder nodeResourceBuilder = buildNodeLevelResourceForProto(
-                                nodeCriteria);
+                    if (nodeResourceBuilder != null) {
+                        resourceIdNodeId = nodeResourceBuilder.getNodeId();
                         genericResourceBuilder.setNode(nodeResourceBuilder);
                     }
                     genericResourceBuilder.setType(resource.getResourceTypeName());
                     genericResourceBuilder.setInstance(resource.getInstance());
                     collectionSetResourceBuilder.setGeneric(genericResourceBuilder);
+                }
+
+                if (nodeResourceBuilder != null) {
+                    currentNodeId = (int) nodeResourceBuilder.getNodeId();
+                }
+                // Response time resources doesn't embed any node info, they will not have any resource-id info.
+                if (resourceIdNodeId > 0) {
+                    populateResourceIdFields(resource, resourceIdNodeId);
+                }
+            }
+
+            private void populateResourceIdFields(CollectionResource collectionResource, long nodeId) {
+                try {
+                    ResourceId resourceId = resourceDao.getResourceId(collectionResource, nodeId);
+                    if (resourceId != null) {
+                            getString(resourceId.toString()).ifPresent(collectionSetResourceBuilder::setResourceId);
+                            getString(resourceId.getName()).ifPresent(collectionSetResourceBuilder::setResourceName);
+                            getString(resourceId.getType()).ifPresent(collectionSetResourceBuilder::setResourceTypeName);
+                    } else {
+                        LOG.error("Couldn't fetch resource from ResourceId {} ", resourceId);
+                    }
+                } catch (Exception e) {
+                    LOG.error("Couldn't map ResourceId fields from CollectionResource {}", collectionResource);
                 }
             }
 
@@ -139,6 +204,7 @@ public class CollectionSetMapper {
 
                     if (number != null) {
                         attributeBuilder.setValue(attribute.getNumericValue().doubleValue());
+                        attributeBuilder.setMetricValue(DoubleValue.of(number.doubleValue()));
                     } else {
                         attributeBuilder.setValue(Double.NaN);
                     }
@@ -180,24 +246,41 @@ public class CollectionSetMapper {
         String nodeCriteria = null;
         if (resource.getParent() != null) {
             String[] resourcePathArray = resource.getParent().elements();
-            if (ResourceTypeUtils.FOREIGN_SOURCE_DIRECTORY.equals(resourcePathArray[0])
-                    && resourcePathArray.length == 3) {
-                // parent denotes nodeCriteria, form fs:fid
-                nodeCriteria = resourcePathArray[1] + ":" + resourcePathArray[2];
-            } else if (checkNumeric(resourcePathArray[0])) {
-                // parent denotes nodeId
-                nodeCriteria = resourcePathArray[0];
+            if (resourcePathArray != null && resourcePathArray.length > 0) {
+                if (ResourceTypeUtils.FOREIGN_SOURCE_DIRECTORY.equals(resourcePathArray[0])
+                        && resourcePathArray.length == 3) {
+                    // parent denotes nodeCriteria, form fs:fid
+                    nodeCriteria = resourcePathArray[1] + ":" + resourcePathArray[2];
+                } else if (checkNumeric(resourcePathArray[0])) {
+                    // parent denotes nodeId
+                    nodeCriteria = resourcePathArray[0];
+                }
+            }
+        }
+
+        if (nodeCriteria == null) {
+
+            LOG.debug("nodeCriteria null for resource {}, checking tags...", resource.toString());
+            // attempt to get node ID from tags instead
+            if (resource.getTags() != null) {
+                nodeCriteria = resource.getTags().get("node_id");
+                LOG.debug("got nodeCriteria from node_id {} for resource {}", nodeCriteria, resource.toString());
+            } else {
+                LOG.debug("tags was null for resource {}", resource.toString());
             }
         }
         return nodeCriteria;
     }
 
-    private CollectionSetProtos.ResponseTimeResource.Builder buildResponseTimeResource(CollectionResource resource) {
+    private CollectionSetProtos.ResponseTimeResource.Builder buildResponseTimeResource(CollectionResource resource,
+            CollectionSetProtos.NodeLevelResource.Builder nodeResourceBuilder) {
         boolean validIp = false;
         // Check if resource parent is an IpAddress.
         if (resource.getParent() != null && resource.getParent().elements().length == 1) {
             String[] resourcePathArray = resource.getParent().elements();
-            validIp = checkForValidIpAddress(resourcePathArray[0]);
+            if (resourcePathArray != null && resourcePathArray.length > 0) {
+                validIp = checkForValidIpAddress(resourcePathArray[0]);
+            }
         }
         if (resource.getPath() != null && validIp) {
             // extract path which consists of location and IpAddress.
@@ -210,6 +293,9 @@ public class CollectionSetMapper {
                 responseTimeResourceBuilder.setInstance(resourcePathArray[1]);
             } else if (resourcePathArray.length == 1) {
                 responseTimeResourceBuilder.setInstance(resourcePathArray[0]);
+            }
+            if (nodeResourceBuilder != null) {
+                responseTimeResourceBuilder.setNode(nodeResourceBuilder);
             }
             return responseTimeResourceBuilder;
         }
@@ -244,9 +330,9 @@ public class CollectionSetMapper {
                 OnmsNode node = nodeDao.get(nodeCriteria);
                 if (node != null) {
                     nodeResourceBuilder.setNodeId(node.getId());
-                    nodeResourceBuilder.setNodeLabel(node.getLabel());
-                    nodeResourceBuilder.setForeignId(node.getForeignId());
-                    nodeResourceBuilder.setForeignSource(node.getForeignSource());
+                    getString(node.getLabel()).ifPresent(nodeResourceBuilder::setNodeLabel);
+                    getString(node.getForeignId()).ifPresent(nodeResourceBuilder::setForeignId);
+                    getString(node.getForeignSource()).ifPresent(nodeResourceBuilder::setForeignSource);
                     if (node.getLocation() != null) {
                         nodeResourceBuilder.setLocation(node.getLocation().getLocationName());
                     }
@@ -258,4 +344,12 @@ public class CollectionSetMapper {
         });
         return nodeResourceBuilder;
     }
+
+    private static Optional<String> getString(String value) {
+        if (!Strings.isNullOrEmpty(value)) {
+            return Optional.of(value);
+        }
+        return Optional.empty();
+    }
+
 }

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -41,6 +42,8 @@ import org.opennms.core.rpc.utils.mate.EntityScopeProvider;
 import org.opennms.core.rpc.utils.mate.FallbackScope;
 import org.opennms.core.rpc.utils.mate.Interpolator;
 import org.opennms.core.rpc.utils.mate.Scope;
+import org.opennms.integration.api.v1.timeseries.Tag;
+import org.opennms.integration.api.v1.timeseries.immutables.ImmutableTag;
 import org.opennms.netmgt.collection.api.CollectionResource;
 import org.opennms.netmgt.dao.api.NodeDao;
 import org.opennms.netmgt.dao.api.SessionUtils;
@@ -129,6 +132,22 @@ public class MetaTagDataLoader extends CacheLoader<CollectionResource, Map<Strin
         }
     }
 
+    private void mapResourceTags(final Map<String, String> configuredMetaTags, final Set<Tag> tags,
+                                 final CollectionResource resource) {
+
+        for (Map.Entry<String, String> entry : configuredMetaTags.entrySet()) {
+            if (entry.getValue().contains("resource:label") && resource.getInterfaceLabel() != null) {
+                tags.add(new ImmutableTag(entry.getKey(), resource.getInterfaceLabel()));
+            }
+            if (entry.getValue().contains("resource:node_label") && resource.getTags().get("node_label") != null) {
+                tags.add(new ImmutableTag(entry.getKey(), resource.getTags().get("node_label")));
+            }
+            if (entry.getValue().contains("resource:location") && resource.getTags().get("location") != null) {
+                tags.add(new ImmutableTag(entry.getKey(), resource.getTags().get("location")));
+            }
+        }
+    }
+
     private Optional<OnmsNode> getNode(String nodeCriteria) {
         if (nodeCriteria == null || nodeCriteria.trim().isEmpty()) {
             return Optional.empty();
@@ -146,13 +165,15 @@ public class MetaTagDataLoader extends CacheLoader<CollectionResource, Map<Strin
         String nodeCriteria = null;
         if (resource.getParent() != null) {
             String[] resourcePathArray = resource.getParent().elements();
-            if (ResourceTypeUtils.FOREIGN_SOURCE_DIRECTORY.equals(resourcePathArray[0])
-                    && resourcePathArray.length == 3) {
-                // parent denotes nodeCriteria, form fs:fid
-                nodeCriteria = resourcePathArray[1] + ":" + resourcePathArray[2];
-            } else if (checkNumeric(resourcePathArray[0])) {
-                // parent denotes nodeId
-                nodeCriteria = resourcePathArray[0];
+            if (resourcePathArray != null && resourcePathArray.length > 0) {
+		if (ResourceTypeUtils.FOREIGN_SOURCE_DIRECTORY.equals(resourcePathArray[0])
+			&& resourcePathArray.length == 3) {
+		    // parent denotes nodeCriteria, form fs:fid
+		    nodeCriteria = resourcePathArray[1] + ":" + resourcePathArray[2];
+		} else if (checkNumeric(resourcePathArray[0])) {
+		    // parent denotes nodeId
+		    nodeCriteria = resourcePathArray[0];
+		}
             }
         }
         return nodeCriteria;

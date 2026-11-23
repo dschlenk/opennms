@@ -31,6 +31,10 @@ package org.opennms.netmgt.collection.api;
 import org.opennms.netmgt.collection.support.DefaultTimeKeeper;
 import org.opennms.netmgt.model.ResourcePath;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * <p>CollectionResource interface.</p>
  *
@@ -43,6 +47,7 @@ public interface CollectionResource extends ResourceIdentifier, CollectionVisita
     public static final String RESOURCE_TYPE_IF = "if";
     public static final String RESOURCE_TYPE_LATENCY = "latency";
 
+    public static final String INTERFACE_INFO_IN_TAGS = "interface-info-in-tags";
     /**
      * <p>rescanNeeded</p>
      *
@@ -102,4 +107,7 @@ public interface CollectionResource extends ResourceIdentifier, CollectionVisita
      */
     TimeKeeper getTimeKeeper();
 
+    default Map<String, String> getTags() {
+        return Collections.emptyMap();
+    }
 }

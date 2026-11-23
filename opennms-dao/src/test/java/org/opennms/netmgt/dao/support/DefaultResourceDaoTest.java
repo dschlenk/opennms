@@ -49,8 +49,11 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
 import org.opennms.core.test.ConfigurationTestUtils;
 import org.opennms.core.utils.InetAddressUtils;
+import org.opennms.netmgt.collection.api.CollectionResource;
 import org.opennms.netmgt.config.CollectdConfigFactory;
 import org.opennms.netmgt.config.api.ResourceTypesDao;
 import org.opennms.netmgt.config.datacollection.ResourceType;
@@ -65,6 +68,7 @@ import org.opennms.netmgt.model.OnmsLocationMonitor;
 import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.OnmsResource;
 import org.opennms.netmgt.model.ResourceId;
+import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.rrd.RrdStrategy;
 import org.opennms.netmgt.rrd.jrobin.JRobinRrdStrategy;
 import org.opennms.test.FileAnticipator;
@@ -507,6 +511,28 @@ public class DefaultResourceDaoTest {
         m_easyMockUtils.verifyAll();
         
         assertNotNull("Resource should exist", resource);
+    }
+
+    @Test
+    public void testResourceIdGeneration() {
+        CollectionResource mockNodeResource = Mockito.mock(CollectionResource.class);
+        CollectionResource mockInterfaceResource = Mockito.mock(CollectionResource.class);
+        CollectionResource mockGenericResource = Mockito.mock(CollectionResource.class);
+        Mockito.when(mockNodeResource.getResourceTypeName()).thenReturn(CollectionResource.RESOURCE_TYPE_NODE);
+        Mockito.when(mockInterfaceResource.getResourceTypeName()).thenReturn(CollectionResource.RESOURCE_TYPE_IF);
+        Mockito.when(mockInterfaceResource.getInterfaceLabel()).thenReturn("wlp4s1-9061resds41c");
+        Mockito.when(mockGenericResource.getResourceTypeName()).thenReturn("diskIOIndex");
+        Mockito.when(mockGenericResource.getInterfaceLabel()).thenReturn("nvme0n1");
+        ResourceId resourceIdForNode = m_resourceDao.getResourceId(mockNodeResource, 5);
+        ResourceId resourceIdForInterface = m_resourceDao.getResourceId(mockInterfaceResource, 5);
+        ResourceId resourceIdForGeneric = m_resourceDao.getResourceId(mockGenericResource, 5);
+        Assert.assertEquals(resourceIdForNode.toString(), "node[5].nodeSnmp[]");
+        Assert.assertEquals(resourceIdForInterface.toString(), "node[5].interfaceSnmp[wlp4s1-9061resds41c]");
+        Assert.assertEquals(resourceIdForGeneric.toString(), "node[5].diskIOIndex[nvme0n1]");
+        // When System property org.opennms.rrd.storeByForeignSource = true
+        Mockito.when(mockNodeResource.getParent()).thenReturn(ResourcePath.get("fs", "req1", "1223212"));
+        resourceIdForNode = m_resourceDao.getResourceId(mockNodeResource, 5);
+        Assert.assertEquals(resourceIdForNode.toString(), "nodeSource[req1:1223212].nodeSnmp[]");
     }
 
     private OnmsNode createNode() {
